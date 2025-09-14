@@ -1,0 +1,148 @@
+---
+layout: default
+title: "Kaniop - Cloud-Native Identity Management for Kubernetes"
+description: "Open-source Kubernetes operator for declarative identity management with Kanidm clusters"
+stylesheet: index
+---
+{% include values.inc %}
+
+<div id="holder">
+    <section class="hero">
+        <div class="hero-content">
+            <div class="hero-text">
+                <h1>Cloud-Native<br />Identity Management for Kubernetes</h1>
+                <p>Declarative identity management with GitOps workflows for production-ready Kanidm clusters</p>
+                <div class="hero-buttons">
+                    <a class="button primary" href="{{ gettingStartedLink | relative_url }}">Get Started</a>
+                    <a class="button secondary" href="{{ latestDocs | relative_url }}">Documentation</a>
+                </div>
+            </div>
+            <div class="hero-image">
+                <img src="{{ "/images/kaniop-hero.svg" | relative_url }}" alt="Kaniop Architecture" />
+            </div>
+        </div>
+    </section>
+
+    <section class="what-is">
+        <div class="container">
+            <h2>What is Kaniop?</h2>
+            <div class="what-is-content">
+                <div class="what-is-text">
+                    <h3>Identity Management Operator for Kubernetes</h3>
+                    <p>Kaniop is an open-source Kubernetes operator that automates the deployment and management of <a href="{{ kanidmLink }}">Kanidm</a> identity clusters. It transforms identity management into a cloud-native, declarative experience using familiar Kubernetes manifests.</p>
+                    <p>With Kaniop, you can manage users, groups, OAuth2 clients, and POSIX accounts through GitOps workflows, ensuring your identity infrastructure is as scalable and reliable as your applications.</p>
+                    <div class="github-stats">
+                        <div class="stat">
+                            <a href="{{ githubLink }}/stargazers">⭐ Star</a>
+                        </div>
+                        <div class="stat">
+                            <a href="{{ githubLink }}/fork">🍴 Fork</a>
+                        </div>
+                        <div class="stat">
+                            <a href="{{ githubLink }}/subscription">👁️ Watch</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="what-is-image">
+                    <img src="{{ "/images/kubernetes-identity.svg" | relative_url }}" alt="Kubernetes Identity Management" />
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="features" id="features">
+        <div class="container">
+            <h2>Why Choose Kaniop?</h2>
+            <div class="features-grid">
+                <div class="feature">
+                    <div class="feature-icon">🔧</div>
+                    <h3>Declarative Management</h3>
+                    <p>Define your identity infrastructure as code using Kubernetes Custom Resources and GitOps workflows</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">⚡</div>
+                    <h3>Production Ready</h3>
+                    <p>High-availability Kanidm clusters with automatic scaling, health monitoring, and disaster recovery</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">🔐</div>
+                    <h3>Complete Identity Solution</h3>
+                    <p>Manage users, groups, OAuth2 clients, POSIX accounts, and authentication policies in one place</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">🚀</div>
+                    <h3>Cloud Native</h3>
+                    <p>Built for Kubernetes with native integration, RBAC support, and seamless CI/CD workflows</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">📊</div>
+                    <h3>Observability</h3>
+                    <p>Comprehensive monitoring, logging, and tracing with OpenTelemetry integration</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">🔄</div>
+                    <h3>GitOps Ready</h3>
+                    <p>Version-controlled identity management with automated deployments and rollback capabilities</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="quick-start" id="quickstart">
+        <div class="container">
+            <h2>Quick Start</h2>
+            <div class="quick-start-content">
+                <div class="quick-start-text">
+                    <h3>Get running in minutes</h3>
+                    <p>Install Kaniop and deploy your first Kanidm cluster with just a few commands:</p>
+                    <a class="button primary" href="{{ gettingStartedLink | relative_url }}">Full Quickstart Guide</a>
+                </div>
+                <div class="quick-start-code">
+                    <pre><code># Install Kaniop
+helm install kaniop oci://ghcr.io/pando85/helm-charts/kaniop \
+  --create-namespace --namespace kaniop
+
+# Deploy a Kanidm cluster
+kubectl apply -f - <<EOF
+apiVersion: kaniop.rs/v1beta1
+kind: Kanidm
+metadata:
+  name: my-idm
+spec:
+  replicas: 3
+  storage:
+    class: fast-ssd
+    size: 10Gi
+EOF</code></pre>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="community" id="community">
+        <div class="container">
+            <h2>Join the Community</h2>
+            <div class="community-content">
+                <p>Kaniop is an open-source project welcoming contributions from developers, operators, and identity management enthusiasts.</p>
+                <div class="community-links">
+                    <a href="{{ githubLink }}" class="community-link">
+                        <strong>GitHub</strong>
+                        <span>View source code and contribute</span>
+                    </a>
+                    <a href="{{ discussionLink }}" class="community-link">
+                        <strong>Discussions</strong>
+                        <span>Ask questions and share ideas</span>
+                    </a>
+                    <a href="{{ issueLink }}" class="community-link">
+                        <strong>Issues</strong>
+                        <span>Report bugs and request features</span>
+                    </a>
+                    <a href="{{ contributeLink }}" class="community-link">
+                        <strong>Contributing</strong>
+                        <span>Learn how to contribute to the project</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>

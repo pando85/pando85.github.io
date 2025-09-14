@@ -1,0 +1,37 @@
+<svg width="400" height="300" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="400" height="300" fill="#f8fafc"/>
+  
+  <!-- Kubernetes logo representation -->
+  <circle cx="100" cy="150" r="60" fill="none" stroke="#326ce5" stroke-width="3"/>
+  <polygon points="100,110 130,130 130,170 100,190 70,170 70,130" fill="#326ce5" opacity="0.8"/>
+  
+  <!-- Identity components -->
+  <rect x="200" y="80" width="80" height="30" rx="15" fill="#667eea" opacity="0.9"/>
+  <text x="240" y="100" text-anchor="middle" fill="white" font-family="Arial" font-size="12">Identity</text>
+  
+  <rect x="200" y="130" width="80" height="30" rx="15" fill="#764ba2" opacity="0.9"/>
+  <text x="240" y="150" text-anchor="middle" fill="white" font-family="Arial" font-size="12">Users</text>
+  
+  <rect x="200" y="180" width="80" height="30" rx="15" fill="#9f7aea" opacity="0.9"/>
+  <text x="240" y="200" text-anchor="middle" fill="white" font-family="Arial" font-size="12">Groups</text>
+  
+  <rect x="300" y="130" width="80" height="30" rx="15" fill="#e53e3e" opacity="0.9"/>
+  <text x="340" y="150" text-anchor="middle" fill="white" font-family="Arial" font-size="12">OAuth2</text>
+  
+  <!-- Connection arrows -->
+  <path d="M 160 150 Q 180 150 200 95" fill="none" stroke="#667eea" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <path d="M 160 150 L 200 150" fill="none" stroke="#667eea" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <path d="M 160 150 Q 180 150 200 195" fill="none" stroke="#667eea" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <path d="M 280 145 L 300 145" fill="none" stroke="#667eea" stroke-width="2" marker-end="url(#arrowhead)"/>
+  
+  <!-- Arrow marker definition -->
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#667eea"/>
+    </marker>
+  </defs>
+  
+  <!-- Title -->
+  <text x="200" y="40" text-anchor="middle" fill="#1a202c" font-family="Arial" font-size="16" font-weight="bold">Kubernetes + Identity</text>
+</svg>

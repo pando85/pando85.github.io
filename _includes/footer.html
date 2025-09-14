@@ -1,0 +1,36 @@
+<footer>
+  <div class="container">
+    <div class="footer-content">
+      <div class="footer-section">
+        <h4>Project</h4>
+        <ul>
+          <li><a href="{{ githubLink }}">GitHub</a></li>
+          <li><a href="{{ releasesLink }}">Releases</a></li>
+          <li><a href="{{ issueLink }}">Issues</a></li>
+          <li><a href="{{ contributeLink }}">Contributing</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h4>Documentation</h4>
+        <ul>
+          <li><a href="{{ latestDocs | relative_url }}">Getting Started</a></li>
+          <li><a href="{{ gettingStartedLink | relative_url }}">Quickstart</a></li>
+          <li><a href="{{ latestDocs | append: 'installation.html' | relative_url }}">Installation</a></li>
+          <li><a href="{{ latestDocs | append: 'usage/' | relative_url }}">Usage</a></li>
+        </ul>
+      </div>
+            <div class="footer-section">
+        <h4>Community</h4>
+        <ul>
+          <li><a href="{{ githubLink }}">GitHub</a></li>
+          <li><a href="{{ discussionLink }}">Discussions</a></li>
+          <li><a href="{{ latestDocs | append: 'contributing.html' | relative_url }}">Contributing</a></li>
+          <li><a href="{{ githubLink }}/issues">Issues</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2024 Kaniop Project. Licensed under MIT License.</p>
+    </div>
+  </div>
+</footer>

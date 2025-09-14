@@ -1,0 +1,42 @@
+# Site settings
+title: kaniop.io
+url: "https://pando85.github.io/" # the base hostname & protocol for your site
+description: "Cloud-Native Identity Management for Kubernetes"
+
+# Build settings
+markdown: kramdown
+
+# plugins
+# NOTE: github pages ignores custom plugins and any other plugin which is not whitelisted
+# SEE: https://pages.github.com/versions/
+plugins:
+  - jekyll-relative-links
+  - jekyll-readme-index
+
+exclude:
+  - build
+  - Gemfile
+  - Gemfile.lock
+  - Makefile
+  - README.md
+  - vendor
+
+defaults:
+  - scope:
+      path: ""
+    values:
+      layout: default
+      title: "Kaniop"
+  - scope:
+      path: "docs/kaniop"
+    values:
+      layout: "docs"
+      doctitle: "Kaniop Docs"
+      github: "https://github.com/pando85/kaniop/blob/master/Documentation/"
+      stylesheet: "docs"
+
+sass:
+  sass_dir: ./_scss
+
+# Dynamic version detection is handled by _plugins/version_generator.rb
+current_release_index: 0

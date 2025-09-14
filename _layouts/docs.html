@@ -1,0 +1,204 @@
+---
+layout: default
+---
+{% include values.inc %}
+
+{% include values_docs.inc %}
+
+{% assign documents = site.pages | where_exp: 'page', 'page.url contains currentProjectVersionPath' | sort: 'weight' %}
+
+<div class="docs-container">
+    <div class="docs-sidebar">
+        <div class="docs-nav">
+            <div class="docs-nav-header">
+                <h3><a href="{{ currentDocsPath | relative_url }}">Kaniop Documentation</a></h3>
+                <div class="version-selector">
+                    <button class="version-button" onclick="toggleVersionDropdown()" aria-expanded="false">
+                        <span class="version-current">{{ currentVersion | default: 'latest' }}</span>
+                        <span class="version-arrow">▼</span>
+                    </button>
+                    <div class="version-dropdown" id="versionDropdown">
+                        {% assign kaniop_project = site.data.projects | where: 'project', 'kaniop' | first %}
+                        {% if kaniop_project.versions and kaniop_project.versions.size > 0 %}
+                            {% assign current_path = page.url | remove: '/docs/kaniop/' | split: '/' | slice: 1, 10 | join: '/' %}
+                            {% for version in kaniop_project.versions %}
+                                <a href="{{ version.path }}/{{ current_path }}" 
+                                   class="version-item{% if version.version == currentVersion %} active{% endif %}">
+                                    {% if version.version == 'latest' %}Latest{% else %}{{ version.version }}{% endif %}
+                                </a>
+                            {% endfor %}
+                        {% else %}
+                            <a href="/docs/kaniop/latest/" class="version-item active">Latest</a>
+                            <a href="/docs/kaniop/v0.1/" class="version-item">v0.1</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="docs-nav-menu">
+                <ul id="docs-ul"></ul>
+            </div>
+        </div>
+    </div>
+    
+    <div class="docs-content">
+        <div class="docs-article">
+            {% if page.title %}
+            <header class="docs-header">
+                <h1>{{ page.title }}</h1>
+                {% if page.description %}
+                <p class="docs-description">{{ page.description }}</p>
+                {% endif %}
+            </header>
+            {% endif %}
+            
+            <div class="docs-body">
+                {{ content }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+var menu = [];
+var BASE_PATH = {{ '' | relative_url | jsonify }};
+
+function add(name, url, isChild, current) {
+    var item = { name: name, url: url, current: current };
+    var container = menu;
+    if (isChild && menu.length > 0) {
+        menu[menu.length-1].children = menu[menu.length-1].children || [];
+        container = menu[menu.length-1].children;
+        if (current) {
+            menu[menu.length-1].childCurrent = true;
+        }
+    }
+    container.push(item);
+}
+
+{% for document in documents %}
+    add(
+        {{ document.title | jsonify }},
+        {{ document.url | relative_url | jsonify }},
+        {% if document.indent == true %}true{% else %}false{% endif %},
+        {% if document.url == page.url %}true{% else %}false{% endif %}
+    );
+{% endfor %}
+
+function getEntry(item) {
+    var itemDom = document.createElement('li');
+
+    if (item.current) {
+        itemDom.innerHTML = item.name;
+        itemDom.classList.add('current');
+    } else {
+        itemDom.innerHTML = '<a href="' + item.url + '">' + item.name + '</a>';
+    }
+
+    return itemDom;
+}
+
+// Flush css changes as explained in: https://stackoverflow.com/a/34726346
+// and more completely: https://stackoverflow.com/a/6956049
+function flushCss(element) {
+    element.offsetHeight;
+}
+
+function addArrow(itemDom, item) {
+    var MAIN_ITEM_HEIGHT = 40;
+    var BOTTOM_PADDING = 10;
+    var arrowDom = document.createElement('a');
+    arrowDom.classList.add('arrow');
+    arrowDom.innerHTML = '<span class="arrow-icon">▼</span>';
+    arrowDom.onclick = function(itemDom) {
+        return function () {
+            // Calculated full height of the opened list
+            var fullHeight = MAIN_ITEM_HEIGHT + BOTTOM_PADDING + itemDom.lastChild.clientHeight + 'px';
+
+            itemDom.classList.toggle('open');
+
+            if (itemDom.classList.contains('open')) {
+                itemDom.style.height = fullHeight;
+            } else {
+                // If the list height is auto we have to set it to fullHeight
+                // without transition before we shrink it to collapsed height
+                if (itemDom.style.height === 'auto') {
+                    itemDom.style.transition = 'none';
+                    itemDom.style.height = fullHeight;
+                    flushCss(itemDom);
+                    itemDom.style.transition = '';
+                }
+                itemDom.style.height = MAIN_ITEM_HEIGHT + 'px';
+            }
+
+            return false;
+        };
+    }(itemDom);
+    itemDom.appendChild(arrowDom);
+
+    if ((item.current && item.children) || item.childCurrent) {
+        itemDom.classList.add('open');
+        itemDom.style.height = 'auto';
+    } else {
+        itemDom.style.height = MAIN_ITEM_HEIGHT + 'px';
+    }
+}
+
+function toggleVersionDropdown() {
+    const dropdown = document.getElementById('versionDropdown');
+    const button = document.querySelector('.version-button');
+    const isOpen = dropdown.classList.contains('show');
+    
+    if (isOpen) {
+        dropdown.classList.remove('show');
+        button.setAttribute('aria-expanded', 'false');
+    } else {
+        dropdown.classList.add('show');
+        button.setAttribute('aria-expanded', 'true');
+    }
+}
+
+// Close dropdown when clicking outside
+document.addEventListener('click', function(event) {
+    const versionSelector = document.querySelector('.version-selector');
+    if (versionSelector && !versionSelector.contains(event.target)) {
+        const dropdown = document.getElementById('versionDropdown');
+        const button = document.querySelector('.version-button');
+        dropdown.classList.remove('show');
+        button.setAttribute('aria-expanded', 'false');
+    }
+});
+
+// Close dropdown on escape key
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        const dropdown = document.getElementById('versionDropdown');
+        const button = document.querySelector('.version-button');
+        dropdown.classList.remove('show');
+        button.setAttribute('aria-expanded', 'false');
+    }
+});
+
+// Build the dynamic menu
+var menuDom = document.getElementById('docs-ul');
+for (var i = 0; i < menu.length; i++) {
+    var item = menu[i];
+    var itemDom = getEntry(item);
+
+    if (item.childCurrent) {
+        itemDom.classList.add('childCurrent');
+    }
+
+    if (item.children) {
+        addArrow(itemDom, item);
+        itemDom.classList.add('children');
+        var children = document.createElement('ul');
+        for (var j = 0; j < item.children.length; j++) {
+            children.appendChild(getEntry(item.children[j]));
+        }
+        itemDom.appendChild(children);
+    }
+    menuDom.appendChild(itemDom);
+}
+</script>
+
