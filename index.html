@@ -103,17 +103,8 @@ helm install kaniop oci://ghcr.io/pando85/helm-charts/kaniop \
   --create-namespace --namespace kaniop
 
 # Deploy a Kanidm cluster
-kubectl apply -f - <<EOF
-apiVersion: kaniop.rs/v1beta1
-kind: Kanidm
-metadata:
-  name: my-idm
-spec:
-  replicas: 3
-  storage:
-    class: fast-ssd
-    size: 10Gi
-EOF</code></pre>
+kubectl apply -f https://raw.githubusercontent.com/pando85/kaniop/refs/heads/master/examples/kanidm-tls.yaml
+kubectl apply -f https://raw.githubusercontent.com/pando85/kaniop/refs/heads/master/examples/kanidm.yaml</code></pre>
                 </div>
             </div>
         </div>
