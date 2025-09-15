@@ -4,9 +4,19 @@ title: "Kaniop - Cloud-Native Identity Management for Kubernetes"
 description: "Open-source Kubernetes operator for declarative identity management with Kanidm clusters"
 stylesheet: index
 ---
+<!-- SEO & Social Sharing -->
+<meta property="og:title" content="Kaniop - Cloud-Native Identity Management for Kubernetes" />
+<meta property="og:description" content="Open-source Kubernetes operator for declarative identity management with Kanidm clusters" />
+<meta property="og:image" content="{{ '/images/kaniop-hero.svg' | relative_url }}" />
+<meta property="og:url" content="{{ site.url }}{{ page.url }}" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Kaniop - Cloud-Native Identity Management for Kubernetes" />
+<meta name="twitter:description" content="Open-source Kubernetes operator for declarative identity management with Kanidm clusters" />
+<meta name="twitter:image" content="{{ '/images/kaniop-hero.svg' | relative_url }}" />
+
 {% include values.inc %}
 
-<div id="holder">
+<main id="holder">
     <section class="hero">
         <div class="hero-content">
             <div class="hero-text">
@@ -15,10 +25,11 @@ stylesheet: index
                 <div class="hero-buttons">
                     <a class="button primary" href="{{ gettingStartedLink | relative_url }}">Get Started</a>
                     <a class="button secondary" href="{{ latestDocs | relative_url }}">Documentation</a>
+                    <a class="button github-star" href="{{ githubLink }}/stargazers" aria-label="Star Kaniop on GitHub" target="_blank">⭐ Star on GitHub</a>
                 </div>
             </div>
             <div class="hero-image">
-                <img src="{{ "/images/kaniop-hero.svg" | relative_url }}" alt="Kaniop Architecture" />
+                <img src="{{ "/images/kaniop-hero.svg" | relative_url }}" alt="Kaniop Architecture diagram showing cloud-native identity management" loading="lazy" />
             </div>
         </div>
     </section>
@@ -33,18 +44,18 @@ stylesheet: index
                     <p>With Kaniop, you can manage users, groups, OAuth2 clients, and POSIX accounts through GitOps workflows, ensuring your identity infrastructure is as scalable and reliable as your applications.</p>
                     <div class="github-stats">
                         <div class="stat">
-                            <a href="{{ githubLink }}/stargazers">⭐ Star</a>
+                            <a href="{{ githubLink }}/stargazers" aria-label="Star on GitHub" target="_blank">⭐ Star</a>
                         </div>
                         <div class="stat">
-                            <a href="{{ githubLink }}/fork">🍴 Fork</a>
+                            <a href="{{ githubLink }}/fork" aria-label="Fork on GitHub" target="_blank">🍴 Fork</a>
                         </div>
                         <div class="stat">
-                            <a href="{{ githubLink }}/subscription">👁️ Watch</a>
+                            <a href="{{ githubLink }}/subscription" aria-label="Watch on GitHub" target="_blank">👁️ Watch</a>
                         </div>
                     </div>
                 </div>
                 <div class="what-is-image">
-                    <img src="{{ "/images/kubernetes-identity.svg" | relative_url }}" alt="Kubernetes Identity Management" />
+                    <img src="{{ "/images/kubernetes-identity.svg" | relative_url }}" alt="Kubernetes identity management illustration" loading="lazy" />
                 </div>
             </div>
         </div>
@@ -53,6 +64,14 @@ stylesheet: index
     <section class="features" id="features">
         <div class="container">
             <h2>Why Choose Kaniop?</h2>
+            <div class="why-kaniop">
+                <ul>
+                    <li>Declarative, GitOps-driven identity management for Kubernetes</li>
+                    <li>Automated deployment and scaling of Kanidm clusters</li>
+                    <li>Comprehensive monitoring and observability</li>
+                    <li>Open-source and community-driven</li>
+                </ul>
+            </div>
             <div class="features-grid">
                 <div class="feature">
                     <div class="feature-icon">🔧</div>
@@ -116,19 +135,19 @@ kubectl apply -f https://raw.githubusercontent.com/pando85/kaniop/refs/heads/mas
             <div class="community-content">
                 <p>Kaniop is an open-source project welcoming contributions from developers, operators, and identity management enthusiasts.</p>
                 <div class="community-links">
-                    <a href="{{ githubLink }}" class="community-link">
+                    <a href="{{ githubLink }}" class="community-link" aria-label="GitHub" target="_blank">
                         <strong>GitHub</strong>
                         <span>View source code and contribute</span>
                     </a>
-                    <a href="{{ discussionLink }}" class="community-link">
+                    <a href="{{ discussionLink }}" class="community-link" aria-label="Discussions" target="_blank">
                         <strong>Discussions</strong>
                         <span>Ask questions and share ideas</span>
                     </a>
-                    <a href="{{ issueLink }}" class="community-link">
+                    <a href="{{ issueLink }}" class="community-link" aria-label="Issues" target="_blank">
                         <strong>Issues</strong>
                         <span>Report bugs and request features</span>
                     </a>
-                    <a href="{{ contributeLink }}" class="community-link">
+                    <a href="{{ contributeLink }}" class="community-link" aria-label="Contributing" target="_blank">
                         <strong>Contributing</strong>
                         <span>Learn how to contribute to the project</span>
                     </a>
@@ -136,4 +155,4 @@ kubectl apply -f https://raw.githubusercontent.com/pando85/kaniop/refs/heads/mas
             </div>
         </div>
     </section>
-</div>
+</main>
