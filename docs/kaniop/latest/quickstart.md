@@ -68,48 +68,39 @@ kubectl get statefulsets -l kanidm.kaniop.rs/cluster=my-idm
 kubectl wait --for=condition=ready pod -l kanidm.kaniop.rs/cluster=my-idm --timeout=300s
 ```
 
-## Step 3: Create a Person Account
+## Step 3: Configure OAuth2 Client
 
-Create a user account using the example from the repository:
+Set up an OAuth2 client using the repository example:
 
 ```bash
-# Use the person example
-curl -O https://raw.githubusercontent.com/pando85/kaniop/main/examples/person.yaml
+# Use the OAuth2 example
+curl -O https://raw.githubusercontent.com/pando85/kaniop/main/examples/oauth2.yaml
 ```
-
-The example contains:
 
 The example contains:
 
 ```yaml
-# See examples/person.yaml for the complete configuration
+# See examples/oauth2.yaml for the complete configuration
 apiVersion: kaniop.rs/v1beta1
-kind: KanidmPersonAccount
+kind: KanidmOAuth2Client
 metadata:
-  name: me
+  name: my-service
   namespace: default
 spec:
   kanidmRef:
     name: my-idm
-  personAttributes:
-    displayname: Me
-    # mail:
-    # - me@my-idm.localhost
-    # - alias-me@my-idm.localhost
-    # Additional attributes available - see examples/person.yaml
+  displayname: My Service
+  origin: https://my-service.localhost
+  redirectUrl:
+    - https://my-service.localhost/oauth2/callback
+  # Advanced options like scopeMap, claimMap available - see examples/oauth2.yaml
 ```
 
-Apply the person account:
+Apply and verify:
 
 ```bash
-kubectl apply -f person.yaml
-```
-
-Verify the account was created:
-
-```bash
-kubectl get kanidmpersonaccounts
-kubectl describe kanidmpersonaccount me
+kubectl apply -f oauth2.yaml
+kubectl get kanidmoauth2clients
 ```
 
 ## Step 4: Create a Group
@@ -145,39 +136,46 @@ kubectl apply -f group.yaml
 kubectl get kanidmgroups
 ```
 
-## Step 5: Configure OAuth2 Client
+## Step 5: Create a Person Account
 
-Set up an OAuth2 client using the repository example:
+Create a user account using the example from the repository:
 
 ```bash
-# Use the OAuth2 example
-curl -O https://raw.githubusercontent.com/pando85/kaniop/main/examples/oauth2.yaml
+# Use the person example
+curl -O https://raw.githubusercontent.com/pando85/kaniop/main/examples/person.yaml
 ```
 
 The example contains:
 
 ```yaml
-# See examples/oauth2.yaml for the complete configuration
+# See examples/person.yaml for the complete configuration
 apiVersion: kaniop.rs/v1beta1
-kind: KanidmOAuth2Client
+kind: KanidmPersonAccount
 metadata:
-  name: my-service
+  name: me
   namespace: default
 spec:
   kanidmRef:
     name: my-idm
-  displayname: My Service
-  origin: https://my-service.localhost
-  redirectUrl:
-    - https://my-service.localhost/oauth2/callback
-  # Advanced options like scopeMap, claimMap available - see examples/oauth2.yaml
+  personAttributes:
+    displayname: Me
+    # mail:
+    # - me@my-idm.localhost
+    # - alias-me@my-idm.localhost
+    # Additional attributes available - see examples/person.yaml
 ```
 
-Apply and verify:
+Apply the person account:
 
 ```bash
-kubectl apply -f oauth2.yaml
-kubectl get kanidmoauth2clients
+kubectl apply -f person.yaml
+```
+
+Verify the account was created:
+
+```bash
+kubectl get kanidmpersonaccounts
+kubectl describe kanidmpersonaccount me
 ```
 
 ## Next Steps
@@ -193,11 +191,11 @@ kubectl get kanidmoauth2clients
 
 The `examples/` directory contains additional configurations:
 
-- [`examples/kanidm-ingress.yaml`](https://github.com/pando85/kaniop/blob/main/examples/kanidm-ingress.yaml) -
+- [`examples/kanidm-ingress.yaml`](https://github.com/pando85/kaniop/blob/master/examples/kanidm-ingress.yaml) -
   Kanidm with Ingress configuration
-- [`examples/kanidm-replication.yaml`](https://github.com/pando85/kaniop/blob/main/examples/kanidm-replication.yaml) -
+- [`examples/kanidm-replication.yaml`](https://github.com/pando85/kaniop/blob/master/examples/kanidm-replication.yaml) -
   Multi-replica setup with storage
-- [`examples/kanidm-tls.yaml`](https://github.com/pando85/kaniop/blob/main/examples/kanidm-tls.yaml) -
+- [`examples/kanidm-tls.yaml`](https://github.com/pando85/kaniop/blob/master/examples/kanidm-tls.yaml) -
   TLS configuration
 
 ### What's Next?
