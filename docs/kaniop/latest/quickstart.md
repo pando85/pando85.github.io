@@ -37,7 +37,7 @@ Create a simple Kanidm cluster configuration. You can use the basic example from
 
 ```bash
 # Use the basic Kanidm example
-curl -O https://raw.githubusercontent.com/pando85/kaniop/master/examples/kanidm.yaml
+curl -O https://raw.githubusercontent.com/pando85/kaniop/main/examples/kanidm.yaml
 ```
 
 Or create your own `my-idm.yaml` with:
@@ -74,7 +74,7 @@ Create a user account using the example from the repository:
 
 ```bash
 # Use the person example
-curl -O https://raw.githubusercontent.com/pando85/kaniop/master/examples/person.yaml
+curl -O https://raw.githubusercontent.com/pando85/kaniop/main/examples/person.yaml
 ```
 
 The example contains:
@@ -118,7 +118,7 @@ Create a group using the repository example:
 
 ```bash
 # Use the group example
-curl -O https://raw.githubusercontent.com/pando85/kaniop/master/examples/group.yaml
+curl -O https://raw.githubusercontent.com/pando85/kaniop/main/examples/group.yaml
 ```
 
 The example contains:
@@ -151,7 +151,7 @@ Set up an OAuth2 client using the repository example:
 
 ```bash
 # Use the OAuth2 example
-curl -O https://raw.githubusercontent.com/pando85/kaniop/master/examples/oauth2.yaml
+curl -O https://raw.githubusercontent.com/pando85/kaniop/main/examples/oauth2.yaml
 ```
 
 The example contains:
@@ -193,11 +193,11 @@ kubectl get kanidmoauth2clients
 
 The `examples/` directory contains additional configurations:
 
-- [`examples/kanidm-ingress.yaml`](https://github.com/pando85/kaniop/blob/master/examples/kanidm-ingress.yaml) -
+- [`examples/kanidm-ingress.yaml`](https://github.com/pando85/kaniop/blob/main/examples/kanidm-ingress.yaml) -
   Kanidm with Ingress configuration
-- [`examples/kanidm-replication.yaml`](https://github.com/pando85/kaniop/blob/master/examples/kanidm-replication.yaml) -
+- [`examples/kanidm-replication.yaml`](https://github.com/pando85/kaniop/blob/main/examples/kanidm-replication.yaml) -
   Multi-replica setup with storage
-- [`examples/kanidm-tls.yaml`](https://github.com/pando85/kaniop/blob/master/examples/kanidm-tls.yaml) -
+- [`examples/kanidm-tls.yaml`](https://github.com/pando85/kaniop/blob/main/examples/kanidm-tls.yaml) -
   TLS configuration
 
 ### What's Next?
