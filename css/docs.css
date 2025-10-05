@@ -547,9 +547,88 @@ li.open .arrow .arrow-icon {
 }
 
 .docs-article {
-    max-width: 800px;
+    max-width: 1000px;
     margin: 0 auto;
     padding: 3rem;
+}
+
+/* Documentation Banner Styles */
+.kaniop-banner {
+    width: 100%;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    border-bottom: 1px solid;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.kaniop-banner__inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0.75rem 1.5rem;
+}
+
+.kaniop-banner__content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    text-align: center;
+    flex-wrap: wrap;
+}
+
+.kaniop-banner__link {
+    color: inherit;
+    text-decoration: none;
+    transition: opacity 0.2s ease;
+    white-space: nowrap;
+}
+
+.kaniop-banner__link:hover {
+    opacity: 0.8;
+    text-decoration: none;
+}
+
+/* Warning Banner (for unreleased versions) */
+.kaniop-banner--warning {
+    background: rgba(255, 248, 230, 0.95);
+    color: #b45309;
+    border-bottom-color: #f59e0b;
+}
+
+.kaniop-banner--warning .kaniop-banner__link {
+    color: #92400e;
+}
+
+/* Info Banner (for old versions) */
+.kaniop-banner--info {
+    background: rgba(239, 246, 255, 0.95);
+    color: #1e40af;
+    border-bottom-color: #3b82f6;
+}
+
+.kaniop-banner--info .kaniop-banner__link {
+    color: #1d4ed8;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .kaniop-banner__inner {
+        padding: 0.75rem 1rem;
+    }
+    
+    .kaniop-banner__content {
+        flex-direction: column;
+        gap: 0.5rem;
+        text-align: center;
+    }
+    
+    .kaniop-banner__link {
+        white-space: normal;
+    }
 }
 
 .docs-header {

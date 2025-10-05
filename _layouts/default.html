@@ -22,6 +22,33 @@
     {% endif %}
   </head>
   <body>
+    {% if layout.name == 'docs' or page.layout == 'docs' %}
+      {% include values_docs.inc %}
+      {% assign latest_stable_path = site.data.projects[0].versions[0].path %}
+      {% if currentVersion == "latest" %}
+      <div class="kaniop-banner kaniop-banner--warning" data-banner="unreleased">
+          <div class="kaniop-banner__inner">
+              <div class="kaniop-banner__content">
+                  This documentation is for an unreleased version of Kaniop.
+                  <a href="{{ latest_stable_path | relative_url }}" class="kaniop-banner__link">
+                      <strong>View the latest stable documentation →</strong>
+                  </a>
+              </div>
+          </div>
+      </div>
+      {% elsif currentVersion != latestVersion %}
+      <div class="kaniop-banner kaniop-banner--info" data-banner="outdated">
+          <div class="kaniop-banner__inner">
+              <div class="kaniop-banner__content">
+                  This documentation is for {{ currentVersion }} and not the latest stable release.
+                  <a href="{{ latest_stable_path | relative_url }}" class="kaniop-banner__link">
+                      <strong>View the latest documentation →</strong>
+                  </a>
+              </div>
+          </div>
+      </div>
+      {% endif %}
+    {% endif %}
     {% include navigation.html %}
     <main id="content" aria-label="Content">{{ content }}</main>
     {% include footer.html %}
