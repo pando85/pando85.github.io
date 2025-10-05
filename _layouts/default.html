@@ -24,7 +24,8 @@
   <body>
     {% if layout.name == 'docs' or page.layout == 'docs' %}
       {% include values_docs.inc %}
-      {% assign latest_stable_path = site.data.projects[0].versions[0].path %}
+      {% assign latest_stable_version = site.data.projects[0].versions | where: "stable", true | first %}
+      {% assign latest_stable_path = latest_stable_version.path %}
       {% if currentVersion == "latest" %}
       <div class="kaniop-banner kaniop-banner--warning" data-banner="unreleased">
           <div class="kaniop-banner__inner">
