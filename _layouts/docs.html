@@ -22,36 +22,23 @@ layout: default
                         {% if kaniop_project.versions and kaniop_project.versions.size > 0 %}
                             {% assign current_path = page.url | remove: '/docs/kaniop/' | split: '/' | slice: 1, 10 | join: '/' %}
                             {% for version in kaniop_project.versions %}
-                                <a href="{{ version.path }}/{{ current_path }}" 
+                                <a href="{{ version.path }}/{{ current_path }}"
                                    class="version-item{% if version.version == currentVersion %} active{% endif %}">
                                     {% if version.version == 'latest' %}Latest{% else %}{{ version.version }}{% endif %}
                                 </a>
                             {% endfor %}
-                        {% else %}
-                            <a href="/docs/kaniop/latest/" class="version-item active">Latest</a>
-                            <a href="/docs/kaniop/v0.1/" class="version-item">v0.1</a>
                         {% endif %}
                     </div>
                 </div>
             </div>
-            
             <div class="docs-nav-menu">
                 <ul id="docs-ul"></ul>
             </div>
         </div>
     </div>
-    
+
     <div class="docs-content">
         <div class="docs-article">
-            {% if page.title %}
-            <header class="docs-header">
-                <h1>{{ page.title }}</h1>
-                {% if page.description %}
-                <p class="docs-description">{{ page.description }}</p>
-                {% endif %}
-            </header>
-            {% endif %}
-            
             <div class="docs-body">
                 {{ content }}
             </div>
@@ -148,7 +135,7 @@ function toggleVersionDropdown() {
     const dropdown = document.getElementById('versionDropdown');
     const button = document.querySelector('.version-button');
     const isOpen = dropdown.classList.contains('show');
-    
+
     if (isOpen) {
         dropdown.classList.remove('show');
         button.setAttribute('aria-expanded', 'false');
