@@ -157,10 +157,49 @@ nav .container {
   color: #6b7280;
 }
 
-.github-stats {
+.github-pills {
+  display: -ms-flexbox;
   display: flex;
-  gap: 1rem;
-  margin-top: 2rem;
+  margin-top: 30px;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+}
+
+.github-pills .pill {
+  display: -ms-flexbox;
+  display: flex;
+  margin-right: 15px;
+  margin-bottom: 15px;
+  border-radius: 5px;
+  border: solid 1px #707677;
+}
+
+.github-pills .pill:last-of-type {
+  margin-right: 0;
+}
+
+.github-pills .pill a {
+  padding: 4px 15px 5px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+  text-decoration: none;
+  border-radius: 5px 0 0 5px;
+  transition: all 0.25s ease-in-out;
+}
+
+.github-pills .pill a:hover,
+.github-pills .pill a:focus,
+.github-pills .pill a:active {
+  color: #2563eb;
+}
+
+.github-pills .pill a.count {
+  padding: 4px 10px 5px;
+  background-color: #ffffff;
+  border-left: solid 1px #707677;
+  border-radius: 0 5px 5px 0;
 }
 
 .stat a {
@@ -388,6 +427,11 @@ footer .copyleft {
   .quick-start-content {
     grid-template-columns: 1fr;
     gap: 2rem;
+  }
+
+  .github-pills {
+    -ms-flex-pack: center;
+    justify-content: center;
   }
 
   .hero h1 {

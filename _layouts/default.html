@@ -17,9 +17,6 @@
     {% if layout.name == 'docs' or page.layout == 'docs' %}
       <link rel="stylesheet" href="{{ "/css/docs.css" | relative_url }}" />
     {% endif %}
-    {% if page.stylesheet %}
-      <link rel="stylesheet" href="{{ "/css/" | append: page.stylesheet | append: ".css" | relative_url }}" />
-    {% endif %}
   </head>
   <body>
     {% if layout.name == 'docs' or page.layout == 'docs' %}

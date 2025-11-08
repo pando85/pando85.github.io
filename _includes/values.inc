@@ -16,6 +16,7 @@
 {% assign newIssueLink = 'https://github.com/pando85/kaniop/issues/new' %}
 {% assign gettingStartedLink = currentDocsPath | append: 'getting-started.html' %}
 {% assign githubLink = 'https://github.com/pando85/kaniop' %}
+{% assign apiGithubLink = 'https://api.github.com/repos/pando85/kaniop' %}
 {% assign latestDocs = latestDocsPath %}
 {% assign currentDocs = currentDocsPath %}
 {% assign releasesLink = 'https://github.com/pando85/kaniop/releases' %}

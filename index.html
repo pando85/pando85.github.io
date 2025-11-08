@@ -43,15 +43,18 @@ stylesheet: index
                     <h3>Identity Management Operator for Kubernetes</h3>
                     <p>Kaniop is an open-source Kubernetes operator that automates the deployment and management of <a href="{{ kanidmLink }}">Kanidm</a> identity clusters. It transforms identity management into a cloud-native, declarative experience using familiar Kubernetes manifests.</p>
                     <p>With Kaniop, you can manage users, groups, OAuth2 clients, and POSIX accounts through GitOps workflows, ensuring your identity infrastructure is as scalable and reliable as your applications.</p>
-                    <div class="github-stats">
-                        <div class="stat">
-                            <a href="{{ githubLink }}/stargazers" aria-label="Star on GitHub" target="_blank">⭐ Star</a>
+                    <div class="github-pills">
+                        <div id="watch-pill" class="pill">
+                            <a href="{{ githubLink }}/subscription">Watch</a>
+                            <a id="watch-pill-count" class="count" href="{{ githubLink }}/watchers"></a>
                         </div>
-                        <div class="stat">
-                            <a href="{{ githubLink }}/fork" aria-label="Fork on GitHub" target="_blank">🍴 Fork</a>
+                        <div id="star-pill" class="pill">
+                            <a href="{{ githubLink }}">Star</a>
+                            <a id="star-pill-count" class="count" href="{{ githubLink }}/stargazers"></a>
                         </div>
-                        <div class="stat">
-                            <a href="{{ githubLink }}/subscription" aria-label="Watch on GitHub" target="_blank">👁️ Watch</a>
+                        <div id="fork-pill" class="pill">
+                            <a href="{{ githubLink }}/fork">Forks</a>
+                            <a id="fork-pill-count" class="count" href="{{ githubLink }}/network"></a>
                         </div>
                     </div>
                 </div>
@@ -157,3 +160,20 @@ kubectl apply -f https://raw.githubusercontent.com/pando85/kaniop/refs/heads/mas
         </div>
     </section>
 </main>
+
+<script>
+    function githubFetch(path) {
+        var el = document.createElement('script');
+        var head = document.getElementsByTagName('head')[0];
+        el.src = path + '?callback=githubFetchCallback';
+        head.insertBefore(el, head.firstChild);
+    }
+
+    function githubFetchCallback(obj) {
+        document.getElementById('watch-pill-count').innerText = (obj.data.subscribers_count).toLocaleString();
+        document.getElementById('star-pill-count').innerText = (obj.data.stargazers_count).toLocaleString();
+        document.getElementById('fork-pill-count').innerText = (obj.data.network_count).toLocaleString();
+    }
+
+    githubFetch('{{ apiGithubLink }}');
+</script>
