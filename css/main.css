@@ -374,6 +374,13 @@ footer {
   color: #9ca3af;
 }
 
+footer .copyleft {
+  display: inline-block;
+  transform: rotateY(180deg);
+  font-size: 15px;
+  font-weight: 600;
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
   .hero-content,
