@@ -10,7 +10,7 @@
 {% comment %} Main navigation links {% endcomment %}
 {% assign blogLink = 'https://github.com/pando85/kaniop/discussions' %}
 {% assign communityMeetingLink = 'https://github.com/pando85/kaniop/discussions' %}
-{% assign contributeLink = 'https://github.com/pando85/kaniop/blob/master/CONTRIBUTING.md' %}
+{% assign contributeLink = 'https://pando85.github.io/docs/kaniop/latest/contributing.html' %}
 {% assign discussionLink = 'https://github.com/pando85/kaniop/discussions' %}
 {% assign featureRequestLink = 'https://github.com/pando85/kaniop/issues' %}
 {% assign newIssueLink = 'https://github.com/pando85/kaniop/issues/new' %}
