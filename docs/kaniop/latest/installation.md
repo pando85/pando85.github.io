@@ -1,6 +1,6 @@
 ---
 title: Installation
-weight: 20000
+weight: 020000
 ---
 
 This guide covers installing Kaniop in your Kubernetes cluster using various methods.

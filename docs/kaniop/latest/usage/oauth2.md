@@ -1,6 +1,6 @@
 ---
 title: OAuth2 Client Management
-weight: 31000
+weight: 031000
 indent: true
 ---
 
