@@ -40,3 +40,4 @@ sass:
 
 # Dynamic version detection is handled by _plugins/version_generator.rb
 current_release_index: 0
+
