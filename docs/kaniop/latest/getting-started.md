@@ -1,4 +1,5 @@
 ---
+kaniop_repo_ref: master
 title: Getting Started
 weight: 1000
 ---

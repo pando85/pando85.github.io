@@ -1,4 +1,5 @@
 ---
+kaniop_repo_ref: master
 title: Architecture
 weight: 500
 ---

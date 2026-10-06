@@ -1,4 +1,5 @@
 ---
+kaniop_repo_ref: master
 title: Troubleshooting
 weight: 50000
 ---

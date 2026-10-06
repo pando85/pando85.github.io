@@ -1,4 +1,5 @@
 ---
+kaniop_repo_ref: master
 title: Managing Kanidm Clusters
 weight: 30000
 ---

@@ -1,4 +1,5 @@
 ---
+kaniop_repo_ref: master
 title: Quickstart
 weight: 12000
 indent: true

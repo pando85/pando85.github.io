@@ -1,4 +1,5 @@
 ---
+kaniop_repo_ref: master
 title: "Upgrade Guides"
 weight: 39000
 ---

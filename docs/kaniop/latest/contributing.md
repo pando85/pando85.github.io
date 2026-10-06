@@ -1,4 +1,5 @@
 ---
+kaniop_repo_ref: master
 title: Contributing
 weight: 60000
 ---
