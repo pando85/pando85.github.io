@@ -12,6 +12,18 @@
 
     <link rel="canonical" href="{{ page.url | replace:'index.html','' | absolute_url }}">
 
+    {% if layout.name == 'docs' or page.layout == 'docs' %}
+      {% include values_docs.inc %}
+      <link rel="describedby" href="{{ currentProjectVersionPath | append: 'llms.txt' | absolute_url }}">
+      {% if page.kaniop_repo_ref %}
+        {% assign markdownSourcePath = filepath | replace: '.html', '.md' %}
+        {% if markdownSourcePath == '' %}
+          {% assign markdownSourcePath = 'index.md' %}
+        {% endif %}
+        <link rel="alternate" type="text/markdown" href="https://raw.githubusercontent.com/pando85/kaniop/{{ page.kaniop_repo_ref }}/Documentation/src/{{ markdownSourcePath }}">
+      {% endif %}
+    {% endif %}
+
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ "/css/main.css" | relative_url }}">
     {% if layout.name == 'docs' or page.layout == 'docs' %}
