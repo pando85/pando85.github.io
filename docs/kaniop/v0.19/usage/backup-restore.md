@@ -1,0 +1,638 @@
+# Backup and Restore
+
+> [!WARNING]
+> **Experimental and incomplete.** Kaniop's backup and restore subsystem is still under active development. APIs and behavior may change, some workflows are not yet fully implemented or hardened, and the feature is **not yet production-supported**. Do not rely on it as the sole backup or disaster-recovery mechanism. See the [production backup and restore implementation plan](https://github.com/pando85/kaniop/blob/master/docs/plans/production-kanidm-backup-and-restore.md) for the remaining production gates.
+
+Kaniop uses Kanidm's native logical backup format. `KanidmBackupSchedule` is the single source of truth for the native online backup schedule, local retention, remote repository, and remote retention. The operator configures the online backup scheduler on exactly one primary node and stores local artifacts under `/data` on the Kanidm PVC.
+
+Local backups require PVC-backed storage and one `replicaGroup` with `primaryNode: true`. Kaniop intentionally does not claim PITR semantics or a globally atomic point-in-time cut across replicated writable nodes.
+
+### Native Backup Behavior
+
+**Schedule Timing and Time Zone:**
+
+- The `schedule` field uses cron syntax and is interpreted in the `timeZone` field (defaults to UTC).
+- Kaniop renders the schedule into Kanidm's `[online_backup]` configuration block on the primary node only.
+- Backup files are written to `/data` on the Kanidm PVC with filenames like `backup-<timestamp>.json`.
+- Local retention is controlled by `localVersions` (default 7), which keeps the N most recent backup files on the PVC.
+
+**StatefulSet Rolling Behavior:**
+
+- When you change the backup schedule, time zone, or local versions, Kaniop updates the Kanidm StatefulSet's pod template environment variables.
+- The StatefulSet controller performs a rolling update of the pods to apply the new configuration.
+- This means backup configuration changes trigger a pod restart, which may cause a brief interruption to the Kanidm service.
+- The rolling update follows the StatefulSet's update strategy (typically `RollingUpdate` with `partition: 0`).
+
+**Primary Node Selection:**
+
+- Kaniop configures the online backup scheduler only on the node with `primaryNode: true` in the `replicaGroup`.
+- If no node is marked as primary, the backup scheduler is not configured.
+- The primary node is responsible for writing backup files to the shared PVC.
+
+**Troubleshooting Backup Schedule Issues:**
+
+If backups are not being created, verify the following:
+
+1. **Check Kanidm logs for online_backup scheduler messages:**
+   ```bash
+   kubectl logs -n <namespace> <kanidm-primary-pod> | grep -i "online_backup\|backup"
+   ```
+   Expected: log lines showing the backup scheduler started with the configured schedule. Absence of these messages indicates the scheduler did not initialize.
+
+2. **Verify the rendered configuration:**
+   Kaniop renders the schedule into Kanidm's `[online_backup]` configuration block via environment variables on the primary pod:
+   ```bash
+   kubectl exec -n <namespace> <kanidm-primary-pod> -- env | grep KANIDM_BACKUP
+   ```
+
+3. **Verify the schedule is correct for the time zone:**
+   The `schedule` field uses cron syntax interpreted in the `timeZone` field (defaults to UTC). A schedule of `"0 2 * * *"` fires at 02:00 UTC daily.
+
+4. **Verify the backup directory is writable:**
+   The Kanidm process writes backup files to `/data` on the PVC. Verify the directory exists and is writable by the container's configured runtime UID:
+   ```bash
+   kubectl exec -n <namespace> <kanidm-primary-pod> -- test -w /data && echo "writable" || echo "not writable"
+   ```
+
+5. **Check pod uptime:**
+   If the Kanidm pod recently restarted, the backup scheduler may not have triggered yet. Verify the pod has been running long enough for at least one schedule interval:
+   ```bash
+   kubectl get pod -n <namespace> <kanidm-primary-pod> -o jsonpath='{.status.startTime}'
+   ```
+
+## Remote Backups (S3-Compatible Repositories)
+
+Kaniop supports remote backup repositories for disaster recovery. This uses three additional resources:
+
+- **KanidmBackupRepository**: Defines an S3-compatible destination with authentication, encryption, and transport limits.
+- **KanidmBackupSchedule**: The single source of the Kanidm online backup cron, local retention, and remote retention policy. Only one Schedule may target a given Kanidm at a time.
+- **KanidmBackup**: Immutable catalog metadata for a committed remote backup. These are discovered automatically from remote manifests.
+
+### Online Backup Transport: Experimental Status
+
+The `TransportExperimental` condition on `KanidmBackupSchedule` indicates that the online backup transport (moving backups from the Kanidm PVC to the remote repository) is **experimental and not production-supported**.
+
+**What this means:**
+
+- Kanidm has no documented completion contract for online backups. It writes directly to the final filename with no atomic rename, completion marker, or event that an external data mover can use as an unambiguous completion signal.
+- Kaniop's data mover uses file stability heuristics (size, mtime, checksums) to detect when a backup is complete, but these are **not a production completion contract**.
+- Kaniop **does not report production backup success** based on these heuristics alone. A `Ready` condition on the Schedule means manifest metadata has been validated against S3 objects; it is not a guarantee that full payload integrity was independently verified.
+
+**Current support status:**
+
+- The entire Kaniop-managed backup and restore subsystem remains experimental while the production implementation and hardening plan is incomplete.
+- Restore from a committed backup, the safety backup created before restore, and local backup workflows are implemented to varying degrees, but they have **not yet passed all production-support gates**.
+- Until those gates are complete, use an independent, tested backup and disaster-recovery mechanism and regularly verify that it can restore your Kanidm deployment.
+
+**What blocks production support for online transport?**
+
+Online transport cannot become production-supported until Kanidm documents and Kaniop tests a minimum-version completion contract such as:
+
+- Atomic rename from a temporary filename after successful close
+- A completion marker written after close
+- An authenticated event/API returning a completed path
+- Native upstream object-storage shipping with equivalent commit semantics
+
+Until then, use CSI/Velero snapshots as an independent disaster-recovery layer if you require production-grade remote backups.
+
+### Schedule and Retention Immutability
+
+The following fields on `KanidmBackupSchedule` are **immutable after the first backup has been discovered**:
+
+- `kanidmRef`: The target Kanidm instance
+- `repositoryRef`: The target repository
+- `schedule`: The cron schedule
+- `retention`: The remote retention policy
+
+**Why are these fields immutable?**
+
+Once a backup has been discovered, the Schedule is bound to a specific Kanidm instance, repository, and retention policy. Changing these fields would create ambiguity about which backups belong to which Schedule and could lead to orphaned or incorrectly retained backups.
+
+**How to change these fields:**
+
+To change any of these fields, you must **delete the existing KanidmBackupSchedule and create a new one**:
+
+```bash
+# 1. Delete the old schedule
+kubectl delete kanidmbackupschedule <name> -n <namespace>
+
+# 2. Create a new schedule with the desired configuration
+kubectl apply -f - <<EOF
+apiVersion: kaniop.rs/v1alpha1
+kind: KanidmBackupSchedule
+metadata:
+  name: <new-name>
+  namespace: <namespace>
+spec:
+  kanidmRef:
+    name: <kanidm-name>
+  repositoryRef:
+    name: <repository-name>
+  schedule: "0 3 * * *"  # New schedule
+  retention:
+    keepLast: 10
+    daily: 14
+    weekly: 8
+    monthly: 12
+    minAge: "24h"
+EOF
+```
+
+**What happens to existing Backup CRs and S3 data?**
+
+- **Existing KanidmBackup CRs are not deleted** when you delete a Schedule. They remain in the cluster as immutable catalog entries.
+- **Remote S3 data (payloads and manifests) is not deleted** when you delete a Schedule. The data remains in the repository.
+- **Retention policy changes take effect immediately** for the new Schedule. The new Schedule's retention policy is applied to all discovered backups matching the repository and Kanidm UID.
+- **The new Schedule will discover existing backups** in the repository if they match the new Schedule's `kanidmRef` and `repositoryRef`.
+
+**Safety considerations:**
+
+- Before deleting a Schedule, verify that the new Schedule's retention policy will not immediately delete backups you need to keep.
+- If you are changing repositories, ensure the new repository is accessible and properly configured before deleting the old Schedule.
+- The `suspend` field is **mutable** and can be changed at any time to pause or resume the backup schedule without deleting the Schedule.
+
+### Repository Immutability
+
+The following fields on `KanidmBackupRepository` are **immutable after the repository has been used** (after `observedGeneration` is set in status):
+
+- `s3.bucket`: The S3 bucket name
+- `s3.prefix`: The prefix within the bucket
+- `s3.endpoint`: The S3 endpoint URL
+
+**Why are these fields immutable?**
+
+Once a repository has been used, Backup CRs reference it by name. Changing the bucket, prefix, or endpoint would orphan existing backups and create ambiguity about where backups are stored.
+
+**How to change these fields:**
+
+To change any of these fields, you must **delete the existing KanidmBackupRepository and create a new one**:
+
+```bash
+# 1. Delete the old repository
+kubectl delete kanidmbackuprepository <name> -n <namespace>
+
+# 2. Create a new repository with the desired configuration
+kubectl apply -f - <<EOF
+apiVersion: kaniop.rs/v1alpha1
+kind: KanidmBackupRepository
+metadata:
+  name: <new-name>
+  namespace: <namespace>
+spec:
+  s3:
+    bucket: <new-bucket>
+    prefix: <new-prefix>
+    endpoint: <new-endpoint>
+    region: <region>
+  authentication:
+    writer:
+      workloadIdentity: {}
+    reader:
+      workloadIdentity: {}
+    deleter:
+      workloadIdentity: {}
+EOF
+
+# 3. Update the KanidmBackupSchedule to reference the new repository
+# (This requires deleting and recreating the Schedule; see above)
+```
+
+**What happens to existing Backup CRs and S3 data?**
+
+- **Existing KanidmBackup CRs are not deleted** when you delete a Repository. However, they become orphaned and cannot be used for restore because their `repositoryRef` no longer exists.
+- **Remote S3 data remains in the old bucket/prefix** and is accessible only through the old Repository configuration. If you delete the Repository, you lose the ability to restore from those backups unless you recreate a Repository with the same name and configuration.
+- **To migrate to a new repository**, you must:
+  1. Create the new Repository
+  2. Delete and recreate the Schedule to reference the new Repository
+  3. Optionally, manually copy S3 data from the old repository to the new one if you need to retain access to old backups
+
+**Safety considerations:**
+
+- Before deleting a Repository, ensure you have a Schedule that references a valid Repository, or delete the Schedule first.
+- If you need to retain access to old backups, keep the old Repository or document its configuration for potential recreation.
+- The `authentication`, `encryption`, and `limits` fields are **mutable** and can be changed at any time to update credentials or transport limits. However, once a repository has been used (backups exist), the `encryption.mode`, `encryption.keyId`, and `encryption.keyRef` sub-fields become immutable to prevent breaking existing backups.
+
+### Encryption
+
+Kaniop supports three encryption modes for backup payloads, configured via `spec.encryption` on the `KanidmBackupRepository`. When `encryption` is absent, no encryption is applied.
+
+| Mode | Mechanism | Key Custody | Description |
+|------|-----------|-------------|-------------|
+| _absent_ | none | — | No encryption. Payloads stored as-is. |
+| `providerManaged` | SSE-S3 | Provider | Server-side encryption with S3-managed keys (`x-amz-server-side-encryption: AES256`). Transparent to API readers with bucket access. |
+| `providerKms` | SSE-KMS | Provider KMS | Server-side encryption with customer-managed KMS keys. Requires `keyId` field. Transparent to API readers with bucket access. |
+| `clientSide` | AES-256-GCM envelope | User Secret | Client-side envelope encryption. Requires `keyRef` field pointing to a Secret with a 32-byte KEK. Protects against leaked storage credentials. |
+
+**Threat model:** Server-side encryption (providerManaged, providerKms) is transparent at the S3 API — anyone with valid bucket read credentials gets plaintext. Only `clientSide` protects against leaked storage credentials or a hostile/compelled provider. Kanidm backups contain password hashes and TOTP seeds, so `clientSide` is the mode that matches the sensitivity of the data.
+
+**Client-side encryption details:**
+
+- A random 256-bit DEK (Data Encryption Key) is generated per backup.
+- The DEK is wrapped (encrypted) by the KEK (Key Encryption Key) from the referenced Secret.
+- Each multipart part is independently sealed with AES-256-GCM using nonces derived as `salt || part_index`.
+- The wrapped DEK, nonce salt, chunk size, and KEK fingerprint are stored in the manifest.
+- The `payloadSha256` in the manifest is the hash of the **plaintext** payload (verified post-decryption on restore).
+
+**KEK Secret shape:**
+
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: backup-encryption-key
+  namespace: identity-prod
+type: Opaque
+data:
+  # 32 bytes, base64-encoded
+  encryption-key: <base64-encoded-32-byte-key>
+```
+
+The KEK must be exactly 32 bytes. It can be provided as raw 32 bytes or base64-encoded 32 bytes in the Secret's `encryption-key` field.
+
+**KEK preflight:** When `clientSide` encryption is configured, the `KanidmBackupRepository` reports condition `EncryptionKeyReady` based on whether the referenced Secret and key exist (reasons: `KeyPresent`, `MissingSecret`, `MissingKey`). The controller checks Secret and key presence without reading the key value. If the KEK Secret is missing, the transport sidecar is **not** injected into the Kanidm StatefulSet, so Kanidm pods continue running and backups pause visibly (condition + alert `KaniopBackupRepositoryNotReady`) instead of the pod failing to start.
+
+**Rotation and rekey:** Rotating the KEK (re-wrapping all existing DEK blobs in manifests without re-uploading data) is documented but tooling is not yet implemented and is deferred. Until that support exists, you must retain the original KEK for as long as any backup encrypted with it could be needed.
+
+**KEK escrow retention:** The KEK Secret must be retained for at least the longest remote retention horizon configured on any `KanidmBackupSchedule` referencing this repository, plus a safety margin of your choosing. If the KEK is lost or rendered inaccessible, **all backups encrypted with that KEK become unrecoverable**. Store the KEK securely and separately from the backup repository, and treat its availability as a critical dependency in your disaster-recovery plan.
+
+**Immutability:** Once a repository has been used (backups exist), the encryption configuration (`mode`, `keyId`, `keyRef`) becomes immutable. This prevents breaking existing backups that were created with a specific encryption configuration. Adding encryption to a repository that previously had none is allowed (forward-only change).
+
+### Workload Security Boundary
+
+Backup payloads contain sensitive identity data including password hashes, TOTP seeds, and credential material. The transport sidecar runs as a container within the primary Kanidm pod's StatefulSet and shares the same pod network namespace — Kubernetes workload identity commonly binds to the Pod rather than an individual container. Compromise of the Kanidm pod therefore potentially exposes S3 writer credentials and backup payload access.
+
+Data-mover Jobs (used for discovery, retention enforcement, deletion, and restore safety backups) run with restricted security contexts and resource limits but still mount the S3 credentials needed for their operation. They do not mount Kubernetes service account tokens or the Kanidm database volume. IAM policy should assume compromise of any workload holding S3 credentials and enforce least-privilege scoping per role (writer, reader, deleter, restore reader) as described in the [Backup Transport Sidecar](#backup-transport-sidecar) section.
+
+SHA-256 checksums protect against accidental corruption but are not cryptographic signatures against a determined attacker who can replace both payload and manifest. Immutable object keys, overwrite protection, split read/write/delete roles, and provider Object Lock reduce this risk. Cryptographic manifest signing is required in a future threat model where the storage writer is untrusted.
+
+## Restore
+
+Restore is an explicit destructive operation represented by `KanidmRestore`. Obtain the target UID with `kubectl get kanidm <name> -o jsonpath='{.metadata.uid}'`, select an existing backup basename from `/data`, and use the same pinned Kanidm image as the target. `latest` and untagged images are rejected.
+
+Local restore resolves `fileName` under `/data/<fileName>` (matching where Kanidm writes online backups). The filename must not contain path separators.
+
+A restore that requires a safety backup (`safetyBackup.skip != true`) must set `safetyBackup.repositoryRef` for any source, including local. Without it the restore fails fast at `Validating` before any quiesce or database mutation.
+
+```yaml
+apiVersion: kaniop.rs/v1beta1
+kind: KanidmRestore
+metadata:
+  name: my-idm-restore
+spec:
+  targetRef:
+    name: my-idm
+    uid: <kanidm-uid>
+  source:
+    local:
+      fileName: backup-2026-08-18T02:03:41+00:00.json.gz
+  safetyBackup:
+    repositoryRef:
+      name: offsite
+  restoreImage: kanidm/server:1.10.0
+```
+
+The controller validates the request, verifies the source payload size and checksum against the manifest before any database mutation occurs, marks the target in maintenance, scales all Kanidm pods down, runs `kanidmd database restore`, verifies the database offline, discards stale secondary PVC data, starts the restored primary, rebuilds replicas through normal Kanidm replication, and only then resumes ordinary Kaniop reconciliation. A failure after database mutation is fail-closed: the restore remains `Failed` and the target remains marked as restoring.
+
+Restoring a historical database is followed by GitOps reconciliation. Declaratively managed Kaniop resources can therefore be recreated or changed after recovery.
+
+### Clean-cluster and cross-UID disaster recovery
+
+Normal remote restores deliberately require the cataloged backup identity (`KanidmBackup.spec.kanidmRef`) to match the target Kanidm name and UID. A newly created Kanidm has a different Kubernetes UID, so restoring after loss of the original cluster uses an explicit audited disaster-recovery override rather than weakening the normal identity check.
+
+The target itself is never exempt from UID validation: `spec.targetRef.uid` must still be the UID of the newly created target. Disaster recovery only permits the **source backup identity** to differ.
+
+Because normal discovery scans the current Kanidm UID, a backup from a lost cluster must first be cataloged explicitly from its retained manifest. Recreate the repository, then create a `KanidmBackup` using the source identity and immutable manifest coordinates recorded in the off-cluster repository:
+
+```yaml
+apiVersion: kaniop.rs/v1alpha1
+kind: KanidmBackup
+metadata:
+  name: dr-backup
+  namespace: default
+spec:
+  backupId: <backup-id-from-manifest>
+  kanidmRef:
+    name: <original-kanidm-name>
+    uid: <original-kanidm-uid>
+  repositoryRef:
+    name: production-backups
+  manifestKey: <exact-manifest-key>
+```
+
+Wait until the catalog entry is `Ready`. This validates the manifest against the supplied backup ID and original Kanidm UID. Payload size and SHA-256 are verified later by the restore source-preparation Job before the database mutation boundary.
+
+Create the replacement Kanidm with the same Kanidm domain and the same pinned Kanidm version/image as the retained backup, obtain its new Kubernetes UID, then create the restore with all three audit annotations:
+
+```yaml
+apiVersion: kaniop.rs/v1beta1
+kind: KanidmRestore
+metadata:
+  name: recovered-idm-restore
+  namespace: default
+  annotations:
+    backup.kaniop.rs/disaster-recovery: "true"
+    backup.kaniop.rs/break-glass-reason: "original cluster lost"
+    backup.kaniop.rs/break-glass-approved-by: "incident-commander"
+spec:
+  targetRef:
+    name: recovered-idm
+    uid: <new-target-uid>
+  source:
+    backupRef:
+      name: dr-backup
+  safetyBackup:
+    repositoryRef:
+      name: production-backups
+  restoreImage: kanidm/server:<same-pinned-version-as-backup>
+```
+
+The operator emits a Warning event, records a `DisasterRecoveryOverride=True` condition, and increments `kaniop_restore_disaster_recovery_total`. Domain, repository readiness, backup ID, manifest source UID, Kanidm version/image compatibility, payload size/checksum, safety-backup, and target UID checks remain enforced.
+
+Supported portability constraints:
+
+- source namespace, Kanidm name, and Kubernetes UID may differ from the replacement target only through the audited disaster-recovery path;
+- the Kanidm domain must match the retained backup;
+- the target's reported Kanidm version must exactly match the backup's `kanidmVersion` when both are present; `restoreImage` must exactly equal the target's pinned image, and a digest-pinned restore must match any recorded backup image digest;
+- the referenced S3-compatible repository and any KEK required by the backup must be available;
+- the target must use PVC-backed storage and exactly one primary replica group;
+- cross-UID recovery is covered by e2e; automatic discovery of a lost cluster's old UID is intentionally not performed.
+
+## Backup Transport Sidecar
+
+When a non-suspended `KanidmBackupSchedule` targets a Kanidm and its referenced `KanidmBackupRepository` is Ready, Kaniop injects a `data-mover transport` sidecar into the primary replica group's StatefulSet. The sidecar uploads completed local backups from `/data` to the S3-compatible repository.
+
+### Primary-only behavior
+
+StatefulSets cannot vary containers per ordinal, so the sidecar container is present in every pod of the primary replica group. The transport binary self-gates by comparing `POD_NAME` (from `metadata.name`) with `KANIDM_PRIMARY_NODE` (derived as `{statefulset}-0`). On non-primary pods the sidecar idles in a sleep loop and does not read or upload any files. When the schedule is suspended or no schedule targets the Kanidm, the sidecar is removed from the StatefulSet entirely.
+
+### What is uploaded
+
+The sidecar uploads files matching `backup-*.json.gz` in `/data`. Each file is uploaded as an immutable payload object, followed by a `manifest.json` that serves as the logical commit record. The discovery controller then reconciles these manifests into `KanidmBackup` CRs.
+
+### Completion-safety heuristics
+
+Kanidm has no documented completion contract for online backups — it writes directly to the final filename with no atomic rename or marker. The transport uses two heuristics to avoid uploading partially-written files:
+
+1. **Minimum file age**: files younger than a configurable threshold (default 120s) are skipped.
+2. **Two-scan size stability**: a file whose size changed between consecutive poll ticks is skipped until stable.
+
+Only files that pass both checks are eligible for upload.
+
+### Idempotency
+
+Backup IDs are derived deterministically (UUIDv5 from namespace UID, Kanidm UID and the filename timestamp stem) so that re-uploads after a sidecar restart converge on the same ID. The manifest is committed via a conditional PUT — if a manifest with the same ID already exists, the sidecar logs the deduplication at info level and moves on. No local state file is needed.
+
+### Local pruning
+
+The transport never deletes local backup files. Kanidm's `versions` setting is rendered exclusively from `KanidmBackupSchedule.spec.localVersions` and owns local retention on the PVC.
+
+### Discovery cadence
+
+The discovery controller periodically lists manifests in the repository and reconciles them into `KanidmBackup` CRs. Two operator environment variables control the cadence:
+
+| Variable | Default | Description |
+|---|---|---|
+| `BACKUP_DISCOVERY_SCAN_INTERVAL_SECS` | 300 | Seconds between discovery scans. |
+| `BACKUP_DISCOVERY_STALE_SECS` | 900 | Staleness threshold. If the last scan completed within this window, re-scans are skipped. |
+
+The effective re-scan interval is therefore `max(scan_interval, stale_threshold)` when discovery is healthy. `status.discovery.lastScanTime` is updated on every tick, including ticks where the staleness gate skips Job creation.
+
+### Experimental status
+
+The `TransportExperimental` condition on `KanidmBackupSchedule` indicates that the transport is implemented but Kanidm still lacks an upstream completion contract. The file-stability heuristics are not a production completion guarantee. See the [Online Backup Transport: Experimental Status](#online-backup-transport-experimental-status) section above for details on what is and is not production-supported.
+
+## Operations Runbook
+
+### Pre-restore checklist
+
+Before creating a `KanidmRestore`:
+
+1. **Verify the target UID** matches the running Kanidm CR:
+   ```bash
+   kubectl get kanidm <name> -o jsonpath='{.metadata.uid}'
+   ```
+
+2. **List available local backups** from the primary pod:
+   ```bash
+   kubectl exec -n <namespace> <kanidm-primary-pod> -- ls -la /data/
+   ```
+
+3. **Confirm the pinned image** matches the backup's Kanidm version. The restore image must be an exact digest or tag (no `latest`).
+
+4. **Ensure no other active restore** targets the same Kanidm:
+   ```bash
+   kubectl get kanidmrestore -n <namespace>
+   ```
+
+5. **Verify PVC storage** is persistent (not `emptyDir`) and the Kanidm has exactly one primary replica group.
+
+### Performing a local restore
+
+```bash
+# 1. Get target UID
+KANIDM_UID=$(kubectl get kanidm my-idm -o jsonpath='{.metadata.uid}')
+
+# 2. Apply the restore (fileName is resolved under /data/)
+kubectl apply -f - <<EOF
+apiVersion: kaniop.rs/v1beta1
+kind: KanidmRestore
+metadata:
+  name: my-idm-restore
+  namespace: default
+spec:
+  targetRef:
+    name: my-idm
+    uid: ${KANIDM_UID}
+  source:
+    local:
+      fileName: backup-2026-08-18T02:03:41+00:00.json.gz
+  safetyBackup:
+    repositoryRef:
+      name: offsite
+  restoreImage: kanidm/server:1.10.0
+EOF
+
+# 3. Monitor progress
+kubectl get kanidmrestore my-idm-restore -w
+kubectl describe kanidmrestore my-idm-restore
+```
+
+### Post-restore verification
+
+After the restore reaches `Completed`:
+
+1. Confirm all Kanidm pods are running and ready:
+   ```bash
+   kubectl get pods -l app.kubernetes.io/instance=<kanidm-name>
+   ```
+
+2. Verify Kanidm is serving authentication:
+   ```bash
+   kubectl exec -n <namespace> <kanidm-primary-pod> -- kanidmd verify
+   ```
+
+3. Check that Kaniop reconciliation has resumed:
+   ```bash
+   kubectl get kanidmpersonaccount,kanidmgroup,kanidmoauth2client,kanidmserviceaccount -n <namespace>
+   ```
+
+4. Verify the maintenance annotation has been removed:
+   ```bash
+   kubectl get kanidm <name> -o jsonpath='{.metadata.annotations}'
+   ```
+
+### Failure recovery
+
+#### Restore fails before database mutation
+
+If the restore fails during validation, quiesce, or preflight checks, the controller automatically restores the original replica counts and removes the maintenance annotation. No manual intervention is required.
+
+#### Restore fails after database mutation
+
+If the restore fails after `databaseMutationStarted` becomes true, the Kanidm target remains offline and marked as restoring. This is a fail-closed state by design. Deleting the `KanidmRestore` CR does **not** silently release the target lock. The restore lock is retained and the target stays in maintenance until an explicit audited action is taken.
+
+Recovery steps:
+
+1. Diagnose the failure from the restore status and events:
+   ```bash
+   kubectl describe kanidmrestore <name>
+   kubectl get events -n <namespace> --field-selector involvedObject.name=<name>
+   ```
+
+2. If the database is corrupted beyond automatic recovery, create a new restore from a known-good backup.
+
+3. To release the target lock from a failed post-mutation restore, add the annotation `restore.kaniop.rs/force-release` to the `KanidmRestore` CR. This is an audited operation: the controller emits a Warning event and clears the target lock. Without this annotation, deleting the CR keeps the lock in place.
+
+   ```bash
+   kubectl annotate kanidmrestore <name> -n <namespace> \
+     restore.kaniop.rs/force-release=yes
+   ```
+
+4. As a last resort, delete the `KanidmRestore` and recreate the Kanidm CR from scratch. The finalizer prevents deletion until the database is verified and service recovery is resolved.
+
+#### Operator restart during restore
+
+The controller persists phase state. After an operator restart, reconciliation resumes from the last persisted phase. E2E coverage injects restarts during `SafetyBackup`, `PreparingSource`, `RestoringPrimary`, `Verifying`, and `RebuildingReplicas`. No manual intervention is required unless the underlying Job or storage operation itself fails.
+
+### Prometheus alerts
+
+When `metrics.prometheusRules.enabled` is set to `true`, the following backup/restore alerts are available:
+
+| Alert | Severity | Condition | Action |
+|---|---|---|---|
+| `KaniopRestoreFailures` | critical | Restore operation failed | Check restore status and events |
+| `KaniopRestoreStuck` | critical | Restore running > 1 hour | Check Jobs and operator logs |
+| `KaniopBackupDiscoveryStale` | warning | Discovery not succeeded recently | Check repository connectivity |
+| `KaniopBackupStale` | warning | Latest Ready remote backup is older than 24h | Check transport/discovery/validation; override the expression if your RPO differs |
+| `KaniopRestoreBreakGlassUsed` | critical | Break-glass override used | Review audit log for authorization |
+| `KaniopBackupValidationFailures` | warning | Backup manifest validation failed | Check manifest and repository connectivity |
+| `KaniopBackupDeletionDeferred` | info | Deletion deferred (active restore) | Wait for restore to complete or check GC state |
+| `KaniopDiscoveryTruncated` | warning | Discovery results truncated | Check repository listing limits |
+| `KaniopBackupGCDeferred` | warning | GC deferred for 30m (Object Lock, access denied) | Check Object Lock retention or IAM policy |
+| `KaniopBackupRepositoryNotReady` | warning | Repository not ready for 5m (including KEK missing) | Verify credentials, endpoint, and encryption Secret |
+
+The schedule controller exports `kaniop_backup_last_success_timestamp{namespace,kanidm}` and
+`kaniop_backup_age_seconds{namespace,kanidm}`. A backup only counts after its
+`KanidmBackup` reaches `Ready`; discovery of a manifest by itself does not reset the
+RPO clock. Before the first Ready backup, `backup_age_seconds` measures time since the
+Schedule was created, allowing a never-successful schedule to become stale.
+
+Restore RTO is observed through two metrics:
+
+- `kaniop_restore_duration_seconds` is a histogram recorded when a restore reaches
+  `Completed` or `Failed`; use the histogram buckets for deployment-specific p50/p95/p99
+  observations.
+- `kaniop_restore_start_timestamp_seconds{namespace,restore}` is non-zero while a restore is
+  active. `KaniopRestoreStuck` compares this timestamp with `time()`, so the alert detects
+  an in-progress restore instead of incorrectly querying a terminal-duration histogram.
+
+Example RTO observation:
+
+```promql
+histogram_quantile(
+  0.95,
+  sum by (le) (rate(kaniop_restore_duration_seconds_bucket[7d]))
+)
+```
+
+The currently qualified restore envelope is intentionally conservative rather than an RTO
+SLO: CI exercises local and S3-compatible remote restore with one replica and HA recovery
+with two replicas. Source staging and safety-backup scratch space are bounded by
+`BACKUP_JOB_VOLUME_SIZE` (default `10Gi`), so the backup payload must fit the configured
+restore Job volume. Larger replica topologies and fixed latency/bandwidth performance
+guarantees are not currently qualified. Operators should use the runtime RPO/RTO metrics
+above to establish environment-specific objectives.
+
+`KaniopBackupStale` defaults to a 24-hour threshold and can be overridden through
+`metrics.prometheusRules.overrides.KaniopBackupStale.expr` to match the deployment's
+actual RPO. `KaniopBackupFailures` remains planned pending a dedicated operation-failure
+metric.
+
+Individual alerts can be disabled or overridden via `metrics.prometheusRules.overrides`:
+
+```yaml
+metrics:
+  prometheusRules:
+    enabled: true
+    overrides:
+      KaniopBackupGCDeferred:
+        disabled: true
+```
+
+## Orphan Cleanup
+
+When you delete a `KanidmBackupSchedule` or `KanidmBackupRepository`, the associated `KanidmBackup` CRs are not automatically deleted. These become orphaned resources that reference non-existent schedules or repositories.
+
+**Important:** Kaniop does not automatically delete orphaned `KanidmBackup` CRs or their associated S3 data. This is a safety measure to prevent accidental data loss.
+
+### Manual Orphan Cleanup
+
+To safely clean up orphaned `KanidmBackup` CRs, use a selector-based approach to ensure you only delete the intended resources:
+
+```bash
+# List orphaned backups using jsonpath (no jq required)
+kubectl get kanidmbackup -n <namespace> \
+  -o jsonpath='{range .items[?(@.spec.repositoryRef.name=="<deleted-repo-name>")]}{.metadata.name}{"\n"}{end}'
+
+# Delete specific orphaned backups by name
+kubectl delete kanidmbackup <backup-name> -n <namespace>
+
+# Or delete all orphaned backups for a specific repository (USE WITH CAUTION)
+kubectl delete kanidmbackup -n <namespace> -l "kaniop.rs/repository=<deleted-repo-name>"
+```
+
+### Cleaning Up Orphan Pods
+
+Succeeded pods from backup-discover Jobs may accumulate if Job TTL has not yet expired. To clean up only Succeeded orphan pods safely:
+
+```bash
+# List Succeeded orphan pods from backup-discover Jobs
+kubectl get pods -n <namespace> \
+  -l kaniop.rs/operation=discover \
+  --field-selector=status.phase=Succeeded
+
+# Delete Succeeded orphan pods from backup-discover Jobs
+kubectl delete pods -n <namespace> \
+  -l kaniop.rs/operation=discover \
+  --field-selector=status.phase=Succeeded
+```
+
+**Safety considerations:**
+
+- Always list orphaned backups before deleting to verify you are targeting the correct resources.
+- Orphaned backups cannot be used for restore operations because their `repositoryRef` no longer exists.
+- Remote S3 data (payloads and manifests) is not deleted when you delete `KanidmBackup` CRs. To clean up S3 data, you must manually delete the objects from the S3 bucket.
+- If you need to retain access to old backups, keep the `KanidmBackupRepository` or document its configuration for potential recreation.
+- Do not use blanket deletion commands like `kubectl delete kanidmbackup --all` without first verifying that all backups are truly orphaned and no longer needed.
+
+### Garbage Collection and Deletion Deferral
+
+When the GC controller attempts to delete a `KanidmBackup` from the remote repository, the deletion may be deferred rather than failing silently. The `DeletionDeferred` condition is set on the `KanidmBackup` with one of these reasons:
+
+| Reason | Meaning |
+|--------|---------|
+| `ActiveRestoreReference` | An active `KanidmRestore` references this backup. |
+| `ObjectLockRetention` | The S3 backend rejected deletion due to Object Lock or retention policy. |
+| `AccessDenied` | The deleter identity lacks permission to delete the object. |
+
+When deletion is deferred, the controller emits a Warning event, increments the `kaniop_backup_gc_deferred_total` metric (with label `reason`), and backs off instead of retrying on a fixed 30-second loop. The alert `KaniopBackupGCDeferred` fires when deferrals accumulate. Resolve the underlying cause (wait for restore completion, adjust Object Lock retention, or fix IAM policy) to allow GC to proceed.
