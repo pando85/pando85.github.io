@@ -1,5 +1,5 @@
 ---
-kaniop_repo_ref: v0.19.0
+kaniop_repo_ref: v0.19.1
 title: Managing Groups
 weight: 34000
 indent: true
@@ -13,7 +13,7 @@ Kaniop uses the `KanidmGroup` Custom Resource to manage these entities declarati
 ## Basic Group Configuration
 
 Here's a simple group configuration. You can reference the complete example at
-[`examples/group.yaml`](https://github.com/pando85/kaniop/blob/v0.19.0/examples/group.yaml):
+[`examples/group.yaml`](https://github.com/pando85/kaniop/blob/v0.19.1/examples/group.yaml):
 
 ```yaml
 # Basic configuration - see examples/group.yaml for complete setup
@@ -25,11 +25,16 @@ metadata:
 spec:
   kanidmRef:
     name: my-idm
+  description: Application development team
   members:
     - alice
     - bob
     - charlie
 ```
+
+The optional `spec.description` manages Kanidm's native group description. Omit it to
+leave the existing description untouched, or set it to `""` to clear it. Kaniop
+reconciles external changes when a description is specified.
 
 ## Advanced Group Features
 
@@ -42,7 +47,7 @@ The `examples/group.yaml` file demonstrates advanced features:
 ### Group with Email Configuration
 
 Based on the patterns in
-[`examples/group.yaml`](https://github.com/pando85/kaniop/blob/v0.19.0/examples/group.yaml):
+[`examples/group.yaml`](https://github.com/pando85/kaniop/blob/v0.19.1/examples/group.yaml):
 
 ```yaml
 apiVersion: kaniop.rs/v1beta1

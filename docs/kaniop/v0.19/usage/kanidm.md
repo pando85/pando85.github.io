@@ -1,5 +1,5 @@
 ---
-kaniop_repo_ref: v0.19.0
+kaniop_repo_ref: v0.19.1
 title: Managing Kanidm Clusters
 weight: 30000
 ---
@@ -25,7 +25,7 @@ Kanidm lifecycle—from initial deployment through scaling and certificate rotat
 ## Basic Kanidm Cluster
 
 Here's a simple Kanidm cluster configuration. You can reference the complete example at
-[`examples/kanidm.yaml`](https://github.com/pando85/kaniop/blob/v0.19.0/examples/kanidm.yaml):
+[`examples/kanidm.yaml`](https://github.com/pando85/kaniop/blob/v0.19.1/examples/kanidm.yaml):
 
 ```yaml
 apiVersion: kaniop.rs/v1beta1
@@ -167,7 +167,7 @@ spec:
 ```
 
 See the complete example at
-[`examples/kanidm-custom-css.yaml`](https://github.com/pando85/kaniop/blob/v0.19.0/examples/kanidm-custom-css.yaml).
+[`examples/kanidm-custom-css.yaml`](https://github.com/pando85/kaniop/blob/v0.19.1/examples/kanidm-custom-css.yaml).
 
 For more information on customizing Kanidm, see the
 [Kanidm documentation](https://kanidm.github.io/kanidm/stable/customising.html).

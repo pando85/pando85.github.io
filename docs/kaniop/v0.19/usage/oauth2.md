@@ -1,5 +1,5 @@
 ---
-kaniop_repo_ref: v0.19.0
+kaniop_repo_ref: v0.19.1
 title: OAuth2 Client Management
 weight: 31000
 indent: true
@@ -13,7 +13,7 @@ Custom Resource. This enables secure application integration with your identity 
 ## Basic OAuth2 Client
 
 Here's a simple OAuth2 client configuration. You can reference the complete example at
-[`examples/oauth2.yaml`](https://github.com/pando85/kaniop/blob/v0.19.0/examples/oauth2.yaml):
+[`examples/oauth2.yaml`](https://github.com/pando85/kaniop/blob/v0.19.1/examples/oauth2.yaml):
 
 ```yaml
 # Basic configuration - see examples/oauth2.yaml for all options
@@ -25,7 +25,8 @@ metadata:
 spec:
   kanidmRef:
     name: my-idm
-  displayName: My Web Application
+  displayname: My Web Application
+  description: Application used for single sign-on
   origin: https://myapp.example.com
   redirectUrl:
     - https://myapp.example.com/oauth2/callback
@@ -33,6 +34,9 @@ spec:
 
 This will create an Oauth2 client secret named `my-webapp-kanidm-oauth2-credentials` in the same
 namespace as the OAuth2 client.
+
+The optional `spec.description` is managed independently of the display name. Omitting it
+leaves the Kanidm description unmanaged; setting `""` clears it.
 
 ## Refresh token lifetime
 

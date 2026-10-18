@@ -1,5 +1,5 @@
 ---
-kaniop_repo_ref: v0.19.0
+kaniop_repo_ref: v0.19.1
 title: "Upgrade Guides"
 weight: 39000
 ---

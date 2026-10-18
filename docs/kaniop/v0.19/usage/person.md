@@ -1,5 +1,5 @@
 ---
-kaniop_repo_ref: v0.19.0
+kaniop_repo_ref: v0.19.1
 title: Managing Persons
 weight: 32000
 indent: true
@@ -13,7 +13,7 @@ Custom Resource. This enables declarative user management with full Git-based wo
 ## Basic Person Account
 
 Here's a simple person account configuration. You can reference the complete example at
-[`examples/person.yaml`](https://github.com/pando85/kaniop/blob/v0.19.0/examples/person.yaml):
+[`examples/person.yaml`](https://github.com/pando85/kaniop/blob/v0.19.1/examples/person.yaml):
 
 ```yaml
 # Basic configuration - see examples/person.yaml for all options
@@ -30,6 +30,24 @@ spec:
     mail:
       - alice@example.com
 ```
+
+## Why person descriptions are not managed
+
+Kaniop intentionally does **not** expose `spec.personAttributes.description`.
+Support was attempted in [PR #1076](https://github.com/pando85/kaniop/pull/1076),
+but with Kanidm v1.11.2, the operator's built-in administrative-group
+permissions did not allow writing the `description` attribute on person
+entries. The attribute-write endpoint returned `403 AccessDenied` during
+E2E testing. A PATCH-based alternative was also tried, but the feature was
+[reverted](https://github.com/pando85/kaniop/commit/e993b98ed15ddabf79d4f5ba9e8cbcee492b8a44)
+rather than expose a field that the operator could not reliably reconcile.
+
+This is a write-authorization limitation of the tested Kanidm version and
+operator permissions, **not** a statement that Kanidm cannot store person
+descriptions. An appropriately authorized Kanidm client can manage them
+outside Kaniop; Kaniop does not set, clear, or reconcile that attribute.
+Reconsider support when a suitable Kanidm permission model is verified,
+including E2E coverage for setting, updating, clearing, and drift repair.
 
 ## Advanced Configuration Options
 
@@ -71,7 +89,7 @@ spec:
 ## POSIX Account Configuration
 
 For systems requiring POSIX compatibility (SSH, file systems), see the POSIX section in
-[`examples/person.yaml`](https://github.com/pando85/kaniop/blob/v0.19.0/examples/person.yaml):
+[`examples/person.yaml`](https://github.com/pando85/kaniop/blob/v0.19.1/examples/person.yaml):
 
 ```yaml
 # POSIX configuration from examples/person.yaml
