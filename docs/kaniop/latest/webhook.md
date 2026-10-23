@@ -1,7 +1,7 @@
 ---
 kaniop_repo_ref: master
 title: Webhook Validation
-weight: 40000
+weight: 36000
 ---
 
 # Webhook Validation for Kanidm Custom Resources

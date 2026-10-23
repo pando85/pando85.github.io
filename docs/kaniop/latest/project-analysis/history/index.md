@@ -1,3 +1,10 @@
+---
+kaniop_repo_ref: master
+title: Historical Snapshots
+weight: 55000
+indent: true
+---
+
 # Historical Project Analysis
 
 Historical snapshots preserve Kaniop's project state and interpretation at specific points in time.

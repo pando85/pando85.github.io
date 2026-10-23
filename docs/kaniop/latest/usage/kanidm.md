@@ -1,7 +1,8 @@
 ---
 kaniop_repo_ref: master
 title: Managing Kanidm Clusters
-weight: 30000
+weight: 30100
+indent: true
 ---
 
 # Managing Kanidm Clusters

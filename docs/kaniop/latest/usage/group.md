@@ -1,7 +1,7 @@
 ---
 kaniop_repo_ref: master
 title: Managing Groups
-weight: 34000
+weight: 31500
 indent: true
 ---
 
