@@ -12,6 +12,7 @@ description: "Deploy and operate Kanidm on Kubernetes. Manage clusters and ident
         <p class="eyebrow"><span class="status-dot" aria-hidden="true"></span> Open source <span class="eyebrow-divider" aria-hidden="true"></span> Kubernetes operator for Kanidm</p>
         <h1 id="hero-title">Manage Kanidm on Kubernetes <span>with confidence.</span></h1>
         <p class="hero-lede">Deploy, configure, and operate Kanidm clusters and identity resources through the Kubernetes API. Built for declarative workflows, predictable reconciliation, and GitOps.</p>
+        <p class="hero-explainer"><strong><a href="{{ kanidmLink }}">Kanidm</a></strong> is the identity server. <strong>Kaniop</strong> operates it on Kubernetes and reconciles identity resources from GitOps workflows.</p>
         <div class="hero-actions">
           <a class="landing-button landing-button-primary" href="{{ stableDocs | append: 'quickstart.html' | relative_url }}">Get started <span aria-hidden="true">→</span></a>
           <a class="landing-button landing-button-outline" href="{{ stableDocs | relative_url }}">Explore documentation <span aria-hidden="true">↗</span></a>
@@ -19,18 +20,61 @@ description: "Deploy and operate Kanidm on Kubernetes. Manage clusters and ident
         <p class="hero-caption">Open source · Kubernetes-native · Built in Rust</p>
       </div>
       <div class="hero-visual" aria-label="An example Kanidm Kubernetes resource and its reconciliation flow">
-        <div class="code-window">
-          <div class="code-title"><span class="window-dots" aria-hidden="true"><i></i><i></i><i></i></span><span>kanidm.yaml</span><span class="code-tag">YAML</span></div>
-          <pre><code><span class="syntax-key">apiVersion</span>: <span class="syntax-value">kaniop.rs/v1beta1</span>
+        <div class="code-window hero-code-switcher" aria-label="Kaniop Kubernetes resource examples">
+          <div class="code-title">
+            <span class="window-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+            <span id="hero-code-filename">kanidm.yaml</span>
+            <span class="code-tag">YAML</span>
+          </div>
+          <div class="code-tabs" role="tablist" aria-label="Example resources">
+            <button class="code-tab" type="button" role="tab" id="tab-cluster" aria-controls="panel-cluster" aria-selected="true" tabindex="0" data-code-file="kanidm.yaml">Cluster</button>
+            <button class="code-tab" type="button" role="tab" id="tab-person" aria-controls="panel-person" aria-selected="false" tabindex="-1" data-code-file="person.yaml">Person</button>
+            <button class="code-tab" type="button" role="tab" id="tab-oauth2" aria-controls="panel-oauth2" aria-selected="false" tabindex="-1" data-code-file="oauth2.yaml">OAuth2 client</button>
+          </div>
+          <div class="code-panels">
+            <div class="code-panel" id="panel-cluster" role="tabpanel" aria-labelledby="tab-cluster" tabindex="0">
+              <pre><code><span class="syntax-key">apiVersion</span>: <span class="syntax-value">kaniop.rs/v1beta1</span>
 <span class="syntax-key">kind</span>: <span class="syntax-value">Kanidm</span>
 <span class="syntax-key">metadata</span>:
   <span class="syntax-key">name</span>: my-idm
 <span class="syntax-key">spec</span>:
-  <span class="syntax-key">domain</span>: idm.example.com
+  <span class="syntax-key">domain</span>: my-idm.localhost
   <span class="syntax-key">replicaGroups</span>:
     - <span class="syntax-key">name</span>: default
-      <span class="syntax-key">replicas</span>: <span class="syntax-number">3</span></code></pre>
-          <div class="code-foot"><span class="code-live-dot" aria-hidden="true"></span> Illustrative resource · <a href="{{ stableDocs | append: 'usage/kanidm.html' | relative_url }}">See the full example →</a></div>
+      <span class="syntax-key">replicas</span>: <span class="syntax-number">1</span></code></pre>
+            </div>
+            <div class="code-panel" id="panel-person" role="tabpanel" aria-labelledby="tab-person" tabindex="0" hidden>
+              <pre><code><span class="syntax-key">apiVersion</span>: <span class="syntax-value">kaniop.rs/v1beta1</span>
+<span class="syntax-key">kind</span>: <span class="syntax-value">KanidmPersonAccount</span>
+<span class="syntax-key">metadata</span>:
+  <span class="syntax-key">name</span>: alice
+<span class="syntax-key">spec</span>:
+  <span class="syntax-key">kanidmRef</span>:
+    <span class="syntax-key">name</span>: my-idm
+  <span class="syntax-key">personAttributes</span>:
+    <span class="syntax-key">displayname</span>: Alice Smith
+    <span class="syntax-key">mail</span>:
+      - alice@example.com</code></pre>
+            </div>
+            <div class="code-panel" id="panel-oauth2" role="tabpanel" aria-labelledby="tab-oauth2" tabindex="0" hidden>
+              <pre><code><span class="syntax-key">apiVersion</span>: <span class="syntax-value">kaniop.rs/v1beta1</span>
+<span class="syntax-key">kind</span>: <span class="syntax-value">KanidmOAuth2Client</span>
+<span class="syntax-key">metadata</span>:
+  <span class="syntax-key">name</span>: my-webapp
+<span class="syntax-key">spec</span>:
+  <span class="syntax-key">kanidmRef</span>:
+    <span class="syntax-key">name</span>: my-idm
+  <span class="syntax-key">displayname</span>: My Web Application
+  <span class="syntax-key">origin</span>: https://myapp.example.com
+  <span class="syntax-key">redirectUrl</span>:
+    - https://myapp.example.com/oauth2/callback</code></pre>
+            </div>
+          </div>
+          <div class="code-foot">
+            <span class="code-live-dot" aria-hidden="true"></span>
+            <span>Real Kubernetes CRD examples</span>
+            <a class="code-doc-link" href="{{ stableDocs | append: 'usage/kanidm.html' | relative_url }}" data-code-doc-cluster="{{ stableDocs | append: 'usage/kanidm.html' | relative_url }}" data-code-doc-person="{{ stableDocs | append: 'usage/person.html' | relative_url }}" data-code-doc-oauth2="{{ stableDocs | append: 'usage/oauth2.html' | relative_url }}">Full reference →</a>
+          </div>
         </div>
         <div class="flow-card">
           <div class="flow-node"><span class="node-icon node-k8s" aria-hidden="true">{% include landing-icon.html name='kubernetes' %}</span><div><strong>Kubernetes API</strong><small>Desired state</small></div></div>
