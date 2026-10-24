@@ -5,7 +5,8 @@ layout: default
 
 {% include values_docs.inc %}
 
-{% assign documents = site.pages | where_exp: 'page', 'page.url contains currentProjectVersionPath' | sort: 'weight' %}
+{% comment %} Only pages with explicit navigation weights belong in the sidebar. {% endcomment %}
+{% assign documents = site.pages | where_exp: 'page', 'page.url contains currentProjectVersionPath' | where_exp: 'page', 'page.weight != nil' | sort: 'weight' %}
 
 <div class="docs-container">
     <div class="docs-sidebar">
