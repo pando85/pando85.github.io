@@ -938,3 +938,284 @@
     transition:none
   }
 }
+
+
+/* Brand refresh: keep the existing Kaniop crab rather than introducing a second mark. */
+.landing-page .crab-logo,
+.landing-page .node-crab,
+.landing-page .diagram-crab {
+  display: inline-block;
+  position: relative;
+  overflow: hidden;
+  flex: 0 0 auto;
+}
+.landing-page .crab-logo { width: 54px; height: 41px; }
+.landing-page .crab-logo img {
+  position: absolute;
+  width: 70px;
+  height: 70px;
+  max-width: none;
+  display: block;
+  left: -8px;
+  top: -16px;
+}
+.landing-page .nav-brand img { height: 70px; max-width: none; }
+.landing-page .footer-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+}
+.landing-page .footer-brand .crab-logo {
+  width: 52px;
+  height: 39px;
+}
+.landing-page .footer-brand img { max-width: none; }
+.landing-page .landing-icon { width: 1em; height: 1em; display: block; }
+.landing-page .benefit-symbol .landing-icon { width: 23px; height: 23px; }
+.landing-page .node-icon .landing-icon { width: 20px; height: 20px; }
+.landing-page .node-crab { width: 37px; height: 34px; }
+.landing-page .node-crab img {
+  position: absolute;
+  width: 49px;
+  max-width: none;
+  left: -6px;
+  top: -12px;
+}
+.landing-page .code-foot a {
+  color: #86ddf0;
+  font-weight: 700;
+  text-decoration: none;
+}
+.landing-page .code-foot a:hover { text-decoration: underline; }
+
+/* Make every feature discoverable through its actual documentation. */
+.landing-page .capability-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+  text-decoration: none;
+  color: var(--ink);
+  cursor: pointer;
+}
+.landing-page .capability-card:focus-visible {
+  outline: 3px solid #076de7;
+  outline-offset: 3px;
+}
+.landing-page .capability-card .landing-icon { width: 26px; height: 26px; }
+.landing-page .capability-card h3 {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.landing-page .capability-card p { flex: 1; }
+.landing-page .card-more {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 20px;
+  color: #0b65c8;
+  font-size: .79rem;
+  font-weight: 750;
+  transition: gap .2s ease;
+}
+.landing-page .capability-card:hover .card-more,
+.landing-page .capability-card:focus-visible .card-more { gap: 13px; }
+.landing-page .feature-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 7px;
+  border: 1px solid #f4d8a4;
+  border-radius: 100px;
+  background: #fff6e4;
+  color: #88510d;
+  font-size: .66rem;
+  font-weight: 750;
+  letter-spacing: normal;
+  white-space: nowrap;
+}
+
+/* More legible architecture: resources -> reconciliation -> replica topology. */
+.landing-page .architecture-visual {
+  align-items: stretch;
+  gap: 11px;
+  padding: 24px 17px;
+  border: 1px solid #e1eefa;
+  border-radius: 17px;
+  background-color: #f7fbff;
+  background-image: radial-gradient(#c4d8ee 0.8px, transparent 0.8px);
+  background-size: 15px 15px;
+}
+.landing-page .diagram-column {
+  display: flex;
+  flex-direction: column;
+  border-radius: 13px;
+  background: rgba(255,255,255,.97);
+  padding: 13px 11px;
+}
+.landing-page .center-column { background: #effcf9; border-color: #bce9df; }
+.landing-page .diagram-heading {
+  font-size: .77rem;
+  line-height: 1.3;
+  font-weight: 780;
+  gap: 8px;
+  min-height: 45px;
+  margin-bottom: 6px;
+}
+.landing-page .diagram-circle {
+  flex-basis: 34px;
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+}
+.landing-page .diagram-circle .landing-icon {
+  width: 20px;
+  height: 20px;
+}
+.landing-page .diagram-crab { width: 42px; height: 35px; }
+.landing-page .diagram-crab img {
+  position: absolute;
+  width: 55px;
+  height: 55px;
+  max-width: none;
+  left: -7px;
+  top: -12px;
+}
+.landing-page .diagram-row {
+  align-items: center;
+  gap: 8px;
+  padding: 10px 8px;
+  margin-top: 8px;
+  min-height: 57px;
+  background: #fff;
+}
+.landing-page .diagram-row-icon {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  color: #1178bd;
+}
+.landing-page .diagram-row-icon .landing-icon { width: 21px; height: 21px; }
+.landing-page .diagram-row strong,
+.landing-page .diagram-row small {
+  display: block;
+}
+.landing-page .diagram-row strong { font-size: .72rem; }
+.landing-page .diagram-row small {
+  color: #6d7e93;
+  font-size: .62rem;
+  line-height: 1.35;
+  margin-top: 4px;
+}
+.landing-page .diagram-arrow {
+  align-self: center;
+  font-size: 1.65rem;
+  color: #0a85bc;
+}
+.landing-page .diagram-process {
+  display: grid;
+  place-items: center;
+  text-align: center;
+  gap: 5px;
+  padding: 21px 5px;
+  background: #e0f8f3;
+  border: 1px solid #c3ede5;
+  border-radius: 10px;
+}
+.landing-page .diagram-process-icon {
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  background: #fff;
+  color: #019f8b;
+}
+.landing-page .diagram-process-icon svg { width: 24px; height: 24px; }
+.landing-page .diagram-process strong { font-size: .73rem; }
+.landing-page .diagram-process small {
+  font-size: .61rem;
+  line-height: 1.3;
+  color: #44736d;
+}
+.landing-page .replica-stack {
+  display: grid;
+  gap: 5px;
+  padding: 12px 10px;
+  border-radius: 10px;
+  border: 1px solid #dbe6f0;
+  background: #f3f8fd;
+}
+.landing-page .replica-stack span {
+  padding: 6px 9px 6px 24px;
+  border: 1px solid #d8e6f4;
+  border-radius: 6px;
+  background: #fff;
+  color: #234c75;
+  font-size: .65rem;
+  font-weight: 700;
+  position: relative;
+}
+.landing-page .replica-stack span::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 9px;
+  transform: translateY(-50%);
+  width: 7px;
+  height: 7px;
+  background: #20bb9b;
+  border-radius: 50%;
+}
+.landing-page .diagram-disclaimer {
+  margin-top: 10px;
+  color: #48708d;
+  font-size: .61rem;
+  line-height: 1.4;
+  text-align: center;
+}
+
+/* Useful keyboard-accessible quickstart controls. */
+.landing-page .install-copy {
+  font-family: inherit;
+  margin-left: 3px;
+  padding: 7px 11px;
+  border: 1px solid #c9d8e8;
+  border-radius: 7px;
+  background: #f6faff;
+  color: #165c9b;
+  font-size: .75rem;
+  font-weight: 750;
+  cursor: pointer;
+}
+.landing-page .install-copy:hover { background: #e8f3ff; }
+.landing-page .install-copy:focus-visible {
+  outline: 3px solid #1675d9;
+  outline-offset: 2px;
+}
+.landing-page .copy-feedback {
+  min-height: 1px;
+  color: #148262 !important;
+  font-size: .76rem;
+}
+.landing-page .copy-feedback:not(:empty) { padding-top: 11px; }
+.landing-page .copy-feedback:not(:empty) + .install-note { padding-top: 8px; }
+@media (max-width: 1100px) {
+  .landing-page .architecture-visual { padding: 20px; }
+}
+@media (max-width: 540px) {
+  .landing-page .architecture-visual {
+    grid-template-columns: 1fr;
+    gap: 9px;
+    padding: 15px;
+  }
+  .landing-page .diagram-arrow { transform: rotate(90deg); }
+  .landing-page .diagram-column { min-width: 0; }
+  .landing-page .install-header { gap: 7px; }
+  .landing-page .install-copy { padding: 6px 8px; }
+  .landing-page .install-label { font-size: .67rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .landing-page .card-more { transition: none; }
+}
