@@ -30,14 +30,14 @@ description: "Deploy and operate Kanidm on Kubernetes. Manage clusters and ident
   <span class="syntax-key">replicaGroups</span>:
     - <span class="syntax-key">name</span>: default
       <span class="syntax-key">replicas</span>: <span class="syntax-number">3</span></code></pre>
-          <div class="code-foot"><span class="code-live-dot" aria-hidden="true"></span> Declarative by design</div>
+          <div class="code-foot"><span class="code-live-dot" aria-hidden="true"></span> Illustrative resource · <a href="{{ stableDocs | append: 'usage/kanidm.html' | relative_url }}">See the full example →</a></div>
         </div>
         <div class="flow-card">
-          <div class="flow-node"><span class="node-icon node-k8s" aria-hidden="true">K8s</span><div><strong>Kubernetes API</strong><small>Desired state</small></div></div>
+          <div class="flow-node"><span class="node-icon node-k8s" aria-hidden="true">{% include landing-icon.html name='kubernetes' %}</span><div><strong>Kubernetes API</strong><small>Desired state</small></div></div>
           <span class="flow-arrow" aria-hidden="true">→</span>
-          <div class="flow-node flow-node-main"><span class="node-icon node-kaniop" aria-hidden="true">K</span><div><strong>Kaniop</strong><small>Reconciliation</small></div></div>
+          <div class="flow-node flow-node-main"><span class="node-crab" aria-hidden="true"><img src="{{ '/images/logo.png' | relative_url }}" alt=""></span><div><strong>Kaniop</strong><small>Reconciliation</small></div></div>
           <span class="flow-arrow" aria-hidden="true">→</span>
-          <div class="flow-node"><span class="node-icon node-kanidm" aria-hidden="true">ID</span><div><strong>Kanidm</strong><small>Identity service</small></div></div>
+          <div class="flow-node"><span class="node-icon node-kanidm" aria-hidden="true">{% include landing-icon.html name='key' %}</span><div><strong>Kanidm</strong><small>Identity service</small></div></div>
         </div>
       </div>
     </div>
@@ -47,10 +47,10 @@ description: "Deploy and operate Kanidm on Kubernetes. Manage clusters and ident
 
   <section class="benefit-strip" aria-label="Highlights">
     <div class="container benefit-grid">
-      <div class="benefit"><span class="benefit-symbol" aria-hidden="true">⌘</span><div><strong>GitOps ready</strong><small>Manage identity as code</small></div></div>
-      <div class="benefit"><span class="benefit-symbol" aria-hidden="true">◇</span><div><strong>Kubernetes native</strong><small>Standard CRDs and controllers</small></div></div>
-      <div class="benefit"><span class="benefit-symbol" aria-hidden="true">◎</span><div><strong>Identity resources</strong><small>Persons, groups, OAuth2 &amp; more</small></div></div>
-      <div class="benefit"><span class="benefit-symbol" aria-hidden="true">◈</span><div><strong>Operational safety</strong><small>Conservative stateful workflows</small></div></div>
+      <div class="benefit"><span class="benefit-symbol" aria-hidden="true">{% include landing-icon.html name='git' %}</span><div><strong>GitOps ready</strong><small>Manage identity as code</small></div></div>
+      <div class="benefit"><span class="benefit-symbol" aria-hidden="true">{% include landing-icon.html name='kubernetes' %}</span><div><strong>Kubernetes native</strong><small>Standard CRDs and controllers</small></div></div>
+      <div class="benefit"><span class="benefit-symbol" aria-hidden="true">{% include landing-icon.html name='users' %}</span><div><strong>Identity resources</strong><small>Persons, groups, OAuth2 &amp; more</small></div></div>
+      <div class="benefit"><span class="benefit-symbol" aria-hidden="true">{% include landing-icon.html name='shield' %}</span><div><strong>Operational safety</strong><small>Conservative stateful workflows</small></div></div>
     </div>
   </section>
 
@@ -61,12 +61,42 @@ description: "Deploy and operate Kanidm on Kubernetes. Manage clusters and ident
         <p>Bring identity management into the same declarative infrastructure workflows you already use across your Kubernetes platform.</p>
       </div>
       <div class="capability-grid">
-        <article class="capability-card"><span class="card-icon icon-blue" aria-hidden="true">▣</span><h3>Cluster management</h3><p>Deploy and reconcile Kanidm clusters, replica groups, configuration, and Kubernetes workloads.</p></article>
-        <article class="capability-card"><span class="card-icon icon-sky" aria-hidden="true">♧</span><h3>Declarative identities</h3><p>Manage persons, groups, OAuth2 clients, and service accounts as Kubernetes resources.</p></article>
-        <article class="capability-card"><span class="card-icon icon-mint" aria-hidden="true">⌁</span><h3>GitOps workflows</h3><p>Review identity changes in Git and let your existing reconciliation tools apply them.</p></article>
-        <article class="capability-card"><span class="card-icon icon-blue" aria-hidden="true">◇</span><h3>Conservative operations</h3><p>Coordinate upgrades and lifecycle changes while respecting Kanidm's data and replication semantics.</p></article>
-        <article class="capability-card"><span class="card-icon icon-sky" aria-hidden="true">▤</span><h3>Backup and restore</h3><p>Configure backup and recovery workflows using Kubernetes-native resources.</p></article>
-        <article class="capability-card"><span class="card-icon icon-mint" aria-hidden="true">▥</span><h3>Observability</h3><p>Understand controller behavior through resource status, Kubernetes events, and telemetry.</p></article>
+        <a class="capability-card" href="{{ stableDocs | append: 'usage/kanidm.html' | relative_url }}">
+          <span class="card-icon icon-blue" aria-hidden="true">{% include landing-icon.html name='cluster' %}</span>
+          <h3>Cluster management</h3>
+          <p>Deploy and reconcile Kanidm clusters, replica groups, configuration, and Kubernetes workloads.</p>
+          <span class="card-more">Cluster documentation <span aria-hidden="true">→</span></span>
+        </a>
+        <a class="capability-card" href="{{ stableDocs | append: 'concepts.html' | relative_url }}">
+          <span class="card-icon icon-sky" aria-hidden="true">{% include landing-icon.html name='users' %}</span>
+          <h3>Declarative identities</h3>
+          <p>Manage persons, groups, OAuth2 clients, and service accounts as Kubernetes resources.</p>
+          <span class="card-more">Identity resources <span aria-hidden="true">→</span></span>
+        </a>
+        <a class="capability-card" href="{{ stableDocs | append: 'concepts.html' | relative_url }}">
+          <span class="card-icon icon-mint" aria-hidden="true">{% include landing-icon.html name='git' %}</span>
+          <h3>GitOps workflows</h3>
+          <p>Review identity changes in Git and let your existing reconciliation tools apply them.</p>
+          <span class="card-more">Explore the concepts <span aria-hidden="true">→</span></span>
+        </a>
+        <a class="capability-card" href="{{ stableDocs | append: 'architecture.html' | relative_url }}">
+          <span class="card-icon icon-blue" aria-hidden="true">{% include landing-icon.html name='shield' %}</span>
+          <h3>Conservative operations</h3>
+          <p>Coordinate lifecycle changes while respecting Kanidm's data and replication semantics.</p>
+          <span class="card-more">Safety architecture <span aria-hidden="true">→</span></span>
+        </a>
+        <a class="capability-card" href="{{ stableDocs | append: 'usage/backup-restore.html' | relative_url }}">
+          <span class="card-icon icon-sky" aria-hidden="true">{% include landing-icon.html name='backup' %}</span>
+          <h3>Backup &amp; restore <span class="feature-badge">Experimental</span></h3>
+          <p>Explore native backup and recovery workflows. Not yet supported for production disaster recovery.</p>
+          <span class="card-more">Limitations and status <span aria-hidden="true">→</span></span>
+        </a>
+        <a class="capability-card" href="{{ stableDocs | append: 'usage/kanidm.html' | relative_url }}">
+          <span class="card-icon icon-mint" aria-hidden="true">{% include landing-icon.html name='activity' %}</span>
+          <h3>Observability</h3>
+          <p>Understand controller behavior through resource status, Kubernetes events, and telemetry.</p>
+          <span class="card-more">Cluster operations <span aria-hidden="true">→</span></span>
+        </a>
       </div>
     </div>
   </section>
@@ -79,26 +109,29 @@ description: "Deploy and operate Kanidm on Kubernetes. Manage clusters and ident
         <p>Kaniop continuously reconciles Kubernetes custom resources. Kubernetes defines the desired deployment state, Kaniop coordinates operations, and Kanidm remains responsible for identity, persistence, and replication correctness.</p>
         <a class="text-link" href="{{ stableDocs | append: 'architecture.html' | relative_url }}">Explore the architecture <span aria-hidden="true">→</span></a>
       </div>
-      <div class="architecture-visual" role="img" aria-label="Kubernetes resources flow to the Kaniop operator, which manages Kanidm workloads and identities">
-        <div class="diagram-column">
-          <div class="diagram-heading"><span class="diagram-circle blue" aria-hidden="true">K</span> Kubernetes resources</div>
-          <div class="diagram-row"><span class="mini-glyph" aria-hidden="true">▣</span> Kanidm cluster</div>
-          <div class="diagram-row"><span class="mini-glyph" aria-hidden="true">◎</span> Identity resources</div>
-          <div class="diagram-row"><span class="mini-glyph" aria-hidden="true">⚙</span> Configuration &amp; secrets</div>
+      <div class="architecture-visual" role="img" aria-label="Kubernetes custom resources are reconciled by the Kaniop operator, which orchestrates Kanidm replica groups. Kanidm maintains database and identity correctness.">
+        <div class="diagram-column diagram-sources">
+          <div class="diagram-heading"><span class="diagram-circle blue" aria-hidden="true">{% include landing-icon.html name='kubernetes' %}</span> Kubernetes API</div>
+          <div class="diagram-row"><span class="diagram-row-icon">{% include landing-icon.html name='cluster' %}</span><span><strong>Kanidm CR</strong><small>Topology &amp; configuration</small></span></div>
+          <div class="diagram-row"><span class="diagram-row-icon">{% include landing-icon.html name='users' %}</span><span><strong>Identity CRDs</strong><small>Persons, groups, OAuth2</small></span></div>
+          <div class="diagram-row"><span class="diagram-row-icon">{% include landing-icon.html name='settings' %}</span><span><strong>Platform resources</strong><small>Secrets &amp; persistent storage</small></span></div>
         </div>
         <span class="diagram-arrow" aria-hidden="true">→</span>
         <div class="diagram-column center-column">
-          <div class="diagram-heading"><span class="diagram-circle teal" aria-hidden="true">K</span> Kaniop operator</div>
-          <div class="diagram-row">Observe changes</div>
-          <div class="diagram-row">Reconcile state</div>
-          <div class="diagram-row">Coordinate lifecycle</div>
+          <div class="diagram-heading"><span class="diagram-crab" aria-hidden="true"><img src="{{ '/images/logo.png' | relative_url }}" alt="" loading="lazy"></span> Kaniop operator</div>
+          <div class="diagram-process">
+            <span class="diagram-process-icon">{% include landing-icon.html name='sync' %}</span>
+            <strong>Reconciliation loop</strong>
+            <small>Observe · plan · coordinate</small>
+          </div>
+          <div class="diagram-row"><span class="diagram-row-icon">{% include landing-icon.html name='shield' %}</span><span><strong>Safe orchestration</strong><small>Stateful lifecycle policies</small></span></div>
         </div>
         <span class="diagram-arrow" aria-hidden="true">→</span>
-        <div class="diagram-column">
-          <div class="diagram-heading"><span class="diagram-circle navy" aria-hidden="true">ID</span> Kanidm</div>
-          <div class="diagram-row"><span class="mini-glyph" aria-hidden="true">◈</span> Identity services</div>
-          <div class="diagram-row"><span class="mini-glyph" aria-hidden="true">▤</span> Persistence</div>
-          <div class="diagram-row"><span class="mini-glyph" aria-hidden="true">⌁</span> Replication</div>
+        <div class="diagram-column diagram-outcome">
+          <div class="diagram-heading"><span class="diagram-circle navy" aria-hidden="true">{% include landing-icon.html name='server' %}</span> Kanidm cluster</div>
+          <div class="replica-stack" aria-hidden="true"><span>Replica 1</span><span>Replica 2</span><span>Replica 3</span></div>
+          <div class="diagram-row"><span class="diagram-row-icon">{% include landing-icon.html name='database' %}</span><span><strong>Kanidm data plane</strong><small>Identity, storage, replication</small></span></div>
+          <div class="diagram-disclaimer">Correctness stays with Kanidm</div>
         </div>
       </div>
     </div>
@@ -118,13 +151,13 @@ description: "Deploy and operate Kanidm on Kubernetes. Manage clusters and ident
         <a class="text-link" href="{{ stableDocs | append: 'quickstart.html' | relative_url }}">Follow the full quickstart <span aria-hidden="true">→</span></a>
       </div>
       <div class="install-card">
-        <div class="install-header"><span class="terminal-mark" aria-hidden="true">&gt;_</span><strong>Install with Helm</strong><span class="install-label">Shell</span></div>
-        <pre><code>helm install --create-namespace \
+        <div class="install-header"><span class="terminal-mark" aria-hidden="true">&gt;_</span><strong>Install with Helm</strong><span class="install-label">Shell</span><button class="install-copy" type="button" data-copy-target="helm-install-command" aria-label="Copy Helm installation commands">Copy</button></div>
+        <pre id="helm-install-command"><code>helm install --create-namespace \
   --namespace kaniop --wait kaniop \
   oci://ghcr.io/pando85/helm-charts/kaniop
 
 kubectl get pods -n kaniop</code></pre>
-        <div class="install-note"><span aria-hidden="true">ⓘ</span> See the guide for prerequisites and production configuration.</div>
+        <p class="copy-feedback" role="status" aria-live="polite"></p><div class="install-note"><span aria-hidden="true">ⓘ</span> See the guide for prerequisites and production configuration.</div>
         <a href="{{ stableDocs | append: 'installation.html' | relative_url }}">Installation documentation <span aria-hidden="true">↗</span></a>
       </div>
     </div>
