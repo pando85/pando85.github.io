@@ -1,5 +1,7 @@
 {% comment %} Dynamic version detection using projects.json {% endcomment %}
 {% assign kaniop_project = site.data.projects | where: 'project', 'kaniop' | first %}
+{% assign latestStableRelease = kaniop_project.versions | where: 'stable', true | first %}
+{% assign stableDocs = latestStableRelease.path | append: '/' %}
 {% assign currentVersion = page.currentVersion | default: 'latest' %}
 {% assign currentPath = page.currentPath | default: '/' %}
 
