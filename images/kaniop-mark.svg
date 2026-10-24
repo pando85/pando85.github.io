@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title id="title">Kaniop</title>
+  <defs>
+    <linearGradient id="a" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#0dc3d7"/><stop offset="1" stop-color="#098bd8"/></linearGradient>
+    <linearGradient id="b" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#0b86d9"/><stop offset="1" stop-color="#084fb7"/></linearGradient>
+  </defs>
+  <path fill="#064b9b" d="M32 2 59 17v30L32 62 5 47V17Z"/>
+  <path fill="url(#a)" d="M32 3 58 18 32 33 6 18Z"/>
+  <path fill="url(#b)" d="M6 19 32 34v27L6 46Z"/>
+  <path fill="#126bd7" d="M58 19 32 34v27l26-15Z"/>
+  <path fill="#c9faff" opacity=".9" d="m32 17 13 7.5L32 32l-13-7.5Z"/>
+</svg>
