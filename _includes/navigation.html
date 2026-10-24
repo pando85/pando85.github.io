@@ -1,8 +1,38 @@
-<nav>
+{% if page.landing %}
+<nav class="landing-nav" aria-label="Primary navigation">
   <div class="container">
     <div class="nav-left">
-      <a class="nav-brand" href="{{ "/" | relative_url }}">
-        <img src="{{ "/images/logo.png" | relative_url }}" alt="Kaniop" height="40">
+      <a class="nav-brand" href="{{ '/' | relative_url }}" aria-label="Kaniop — home">
+        <img src="{{ '/images/logo.png' | relative_url }}" alt="" width="40" height="40"> <span>Kaniop</span>
+      </a>
+    </div>
+    <div class="nav-right">
+      <a class="nav-link" href="{{ '/#features' | relative_url }}">Features</a>
+      <a class="nav-link" href="{{ '/#architecture' | relative_url }}">Architecture</a>
+      <a class="nav-link" href="{{ '/#quickstart' | relative_url }}">Quickstart</a>
+      <a class="nav-link" href="{{ stableDocs | relative_url }}">Docs</a>
+      <a class="nav-link" href="{{ githubLink }}">GitHub</a>
+      <a class="nav-cta" href="{{ stableDocs | append: 'quickstart.html' | relative_url }}">Get started →</a>
+    </div>
+    <details class="mobile-menu">
+      <summary aria-label="Open navigation menu">Menu ☰</summary>
+      <div class="mobile-menu-list">
+        <a href="{{ '/#features' | relative_url }}">Features</a>
+        <a href="{{ '/#architecture' | relative_url }}">Architecture</a>
+        <a href="{{ '/#quickstart' | relative_url }}">Quickstart</a>
+        <a href="{{ stableDocs | relative_url }}">Documentation</a>
+        <a href="{{ githubLink }}">GitHub</a>
+        <a href="{{ stableDocs | append: 'quickstart.html' | relative_url }}">Get started →</a>
+      </div>
+    </details>
+  </div>
+</nav>
+{% else %}
+<nav aria-label="Primary navigation">
+  <div class="container">
+    <div class="nav-left">
+      <a class="nav-brand" href="{{ '/' | relative_url }}">
+        <img src="{{ '/images/logo.png' | relative_url }}" alt="Kaniop" height="40">
       </a>
     </div>
     <div class="nav-right">
@@ -13,3 +43,4 @@
     </div>
   </div>
 </nav>
+{% endif %}
