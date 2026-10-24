@@ -29,6 +29,11 @@ jobs:
         with:
           ruby-version: '3.1'
           bundler-cache: true
+      - name: Verify social preview matches the Kaniop crab source
+        run: |
+          python3 -m pip install --user Pillow==11.3.0
+          python3 scripts/generate_social_card.py
+          git diff --exit-code -- images/kaniop-social.png
       - name: Build website
         run: bundle exec jekyll build --trace
       - name: Validate rendered links
