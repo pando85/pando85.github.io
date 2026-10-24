@@ -1381,3 +1381,8 @@
 .landing-page .flow-node small { color: #395469; }
 .landing-page .diagram-row small { color: #465e75; }
 .landing-page .benefit small { color: #4a607a; }
+
+
+/* Additional contrast corrections discovered in the full-page audit. */
+.landing-page .install-label { color: #4a6177; }
+.landing-page .community-cta .section-kicker { color: #07599e !important; }
