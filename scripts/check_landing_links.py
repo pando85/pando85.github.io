@@ -2,6 +2,7 @@
 """Smoke-check the rendered landing page's local URLs and navigation anchors."""
 from html.parser import HTMLParser
 from pathlib import Path
+import struct
 from urllib.parse import unquote, urlsplit
 import sys
 
@@ -12,6 +13,7 @@ class LandingLinks(HTMLParser):
         self.links = []
         self.ids = set()
         self.images = []
+        self.meta = {}
 
     def handle_starttag(self, tag, attrs):
         attrs = dict(attrs)
@@ -23,6 +25,10 @@ class LandingLinks(HTMLParser):
             self.links.append((tag, attrs["src"]))
         if tag == "img":
             self.images.append(attrs)
+        if tag == "meta":
+            key = attrs.get("property") or attrs.get("name")
+            if key:
+                self.meta[key] = attrs.get("content", "")
 
 
 def main():
@@ -64,6 +70,29 @@ def main():
         errors.append("Quickstart navigation is missing")
     if not parser.images or any("alt" not in image for image in parser.images):
         errors.append("Images must have alt attributes")
+
+    social = parser.meta.get("og:image", "")
+    if not social.endswith("/images/kaniop-social.png"):
+        errors.append(f"Wrong Open Graph image: {social}")
+    elif parser.meta.get("twitter:image") != social:
+        errors.append("Twitter and Open Graph images differ")
+
+    if parser.meta.get("twitter:card") != "summary_large_image":
+        errors.append("Missing wide social card configuration")
+    if not parser.meta.get("og:image:alt"):
+        errors.append("Missing social image alt text")
+
+    preview = root / "images/kaniop-social.png"
+    if not preview.is_file():
+        errors.append(f"Missing generated social preview: {preview}")
+    else:
+        header = preview.read_bytes()[:24]
+        if len(header) != 24 or not header.startswith(bytes.fromhex("89504e470d0a1a0a")):
+            errors.append("Social image is not a valid PNG")
+        else:
+            width, height = struct.unpack(">II", header[16:24])
+            if (width, height) != (1200, 630):
+                errors.append(f"Wrong social image dimensions: {width}x{height}")
 
     if errors:
         print("\n".join(errors), file=sys.stderr)
