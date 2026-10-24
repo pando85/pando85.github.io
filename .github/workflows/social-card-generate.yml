@@ -1,0 +1,33 @@
+name: Generate Kaniop social image (one-time)
+on:
+  pull_request:
+    paths:
+      - 'scripts/generate_social_card.py'
+      - 'images/logo.png'
+
+permissions:
+  contents: write
+
+jobs:
+  render:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Pillow
+        run: python -m pip install Pillow==11.3.0
+      - name: Render OG PNG from official crab
+        run: python scripts/generate_social_card.py
+      - name: Commit the generated social image to the PR branch
+        run: |
+          git add images/kaniop-social.png
+          if ! git diff --cached --quiet; then
+            git -c user.name="Kaniop CI" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+              commit -m "design(site): add generated Kaniop crab social preview"
+            git push origin "HEAD:${{ github.head_ref }}"
+          fi
