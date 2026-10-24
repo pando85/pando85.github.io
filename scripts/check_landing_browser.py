@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Smoke-test desktop/mobile layout and navigation against a locally served Jekyll build."""
+"""Exercise the rendered homepage in Chromium, including links, menu and clipboard."""
 from pathlib import Path
 import shutil
 from playwright.sync_api import sync_playwright
@@ -15,8 +15,21 @@ def verify_page(browser, width, height):
     assert response and response.ok, f"Homepage returned {response.status if response else 'no response'}"
     assert page.locator("#hero-title").is_visible()
     assert page.locator(".code-window").is_visible()
-    assert page.locator(".capability-card").count() == 6
-    assert page.locator("a[href*='quickstart.html']").count() >= 2
+
+    crab = page.locator(".nav-brand .crab-logo img")
+    assert crab.count() == 1
+    assert crab.evaluate("(image) => image.complete && image.naturalWidth > 0"), "Crab logo did not load"
+    assert page.locator(".diagram-crab img").count() == 1
+    cards = page.locator("a.capability-card")
+    assert cards.count() == 6
+    for i in range(cards.count()):
+        card = cards.nth(i)
+        assert card.locator("svg.landing-icon").count() == 1, f"Card {i} has no semantic SVG icon"
+        assert "/docs/kaniop/" in card.get_attribute("href"), f"Card {i} has no docs link"
+
+    backup = page.get_by_role("link", name="Backup & restore")
+    assert backup.get_by_text("Experimental").is_visible()
+    assert "not yet supported for production" in backup.inner_text().lower()
 
     if width <= 820:
         assert page.locator(".mobile-menu summary").is_visible()
@@ -25,17 +38,34 @@ def verify_page(browser, width, height):
         assert page.locator(".mobile-menu-list a[href='/#features']").is_visible()
         page.locator(".mobile-menu-list a[href='/#features']").click()
         assert page.url.endswith("/#features")
+        assert not page.locator(".mobile-menu").evaluate("(menu) => menu.open"), (
+            "Mobile menu must close after choosing an anchor"
+        )
         assert page.locator("#features-title").is_visible()
+        page.locator(".mobile-menu summary").click()
+        page.locator(".mobile-menu summary").press("Escape")
+        assert not page.locator(".mobile-menu").evaluate("(menu) => menu.open"), (
+            "Mobile menu must close on Escape"
+        )
     else:
         assert page.locator(".nav-right").is_visible()
         assert not page.locator(".mobile-menu").is_visible()
+
+    if width == 1440:
+        page.context.grant_permissions(["clipboard-read", "clipboard-write"])
+        page.get_by_role("button", name="Copy Helm installation commands").click()
+        assert page.get_by_role("status").get_by_text("Commands copied to clipboard.").is_visible()
+        copied = page.evaluate("navigator.clipboard.readText()")
+        assert "helm install --create-namespace" in copied
+        assert "kubectl get pods -n kaniop" in copied
 
     assert page.evaluate("document.documentElement.scrollWidth <= window.innerWidth + 1"), (
         f"Unexpected horizontal page overflow at {width}px"
     )
     assert not errors, f"JavaScript errors at {width}px: {errors}"
-    Path("screenshots").mkdir(exist_ok=True)
-    page.screenshot(path=f"screenshots/landing-{width}.png", full_page=True, animations="disabled")
+    if width in (1440, 390):
+        Path("screenshots").mkdir(exist_ok=True)
+        page.screenshot(path=f"screenshots/landing-{width}.png", full_page=True, animations="disabled")
     page.close()
 
 
@@ -44,15 +74,16 @@ def main():
                    if (path := shutil.which(name))), None)
     if chrome is None:
         raise RuntimeError("Chrome/Chromium must be installed on the CI runner")
+
     with sync_playwright() as playwright:
         browser = playwright.chromium.launch(executable_path=chrome, headless=True,
                                              args=["--no-sandbox"])
         try:
-            verify_page(browser, 1440, 900)
-            verify_page(browser, 390, 844)
+            for width, height in ((1440, 900), (768, 900), (390, 844), (320, 700)):
+                verify_page(browser, width, height)
         finally:
             browser.close()
-    print("Desktop and mobile smoke tests passed; snapshots written to screenshots/")
+    print("Desktop, tablet and mobile smoke tests passed; review screenshots are available.")
 
 
 if __name__ == "__main__":
