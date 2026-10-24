@@ -93,6 +93,21 @@ def verify_page(browser, width, height):
         assert page.locator(".nav-right").is_visible()
         assert not page.locator(".mobile-menu").is_visible()
 
+    # Anchor targets must remain visible under the sticky navigation.
+    if width > 820:
+        page.locator(".nav-right a[href='/#architecture']").click()
+        page.wait_for_timeout(300)
+        top = page.locator("#architecture").evaluate(
+            "(section) => section.getBoundingClientRect().top"
+        )
+        nav_height = page.locator("nav.landing-nav").evaluate(
+            "(nav) => nav.getBoundingClientRect().height"
+        )
+        assert top >= nav_height - 5, (
+            f"Architecture anchor starts behind navigation: top={top}, nav={nav_height}"
+        )
+    assert page.locator("h1").count() == 1, "Landing should have one primary heading"
+
     if width == 1440:
         page.context.grant_permissions(["clipboard-read", "clipboard-write"])
         page.get_by_role("button", name="Copy Helm installation commands").click()
