@@ -1375,3 +1375,9 @@
   .landing-page .code-prerequisite { font-size: .79rem; }
   .landing-page .diagram-example-label { font-size: .81rem; }
 }
+
+
+/* WCAG AA: improve small-label contrast on pale flow and diagram surfaces. */
+.landing-page .flow-node small { color: #395469; }
+.landing-page .diagram-row small { color: #465e75; }
+.landing-page .benefit small { color: #4a607a; }
