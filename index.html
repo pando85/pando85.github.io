@@ -154,7 +154,7 @@ description: "Deploy and operate Kanidm on Kubernetes. Manage clusters and ident
         <p>Kaniop continuously reconciles Kubernetes custom resources. Kubernetes defines the desired deployment state, Kaniop coordinates operations, and Kanidm remains responsible for identity, persistence, and replication correctness.</p>
         <a class="text-link" href="{{ stableDocs | append: 'architecture.html' | relative_url }}">Explore the architecture <span aria-hidden="true">→</span></a>
       </div>
-      <div class="architecture-visual" role="img" aria-label="Kubernetes custom resources are reconciled by Kaniop, which orchestrates Kanidm workloads. The three-replica topology shown is illustrative, separate from the single-replica hero YAML example. Kanidm remains responsible for data correctness.">
+      <div class="architecture-visual" role="img" aria-label="Kubernetes custom resources are reconciled by Kaniop, which orchestrates Kanidm workloads. The two-replica high-availability topology shown is illustrative, separate from the single-replica hero YAML example. Kanidm remains responsible for data correctness.">
         <div class="diagram-column diagram-sources">
           <div class="diagram-heading"><span class="diagram-circle blue" aria-hidden="true">{% include landing-icon.html name='kubernetes' %}</span> Kubernetes API</div>
           <div class="diagram-row"><span class="diagram-row-icon">{% include landing-icon.html name='cluster' %}</span><span><strong>Kanidm CR</strong><small>Topology &amp; configuration</small></span></div>
@@ -174,8 +174,8 @@ description: "Deploy and operate Kanidm on Kubernetes. Manage clusters and ident
         <span class="diagram-arrow" aria-hidden="true">→</span>
         <div class="diagram-column diagram-outcome">
           <div class="diagram-heading"><span class="diagram-circle navy" aria-hidden="true">{% include landing-icon.html name='server' %}</span> Kanidm cluster</div>
-          <p class="diagram-example-label">Example: three-replica topology</p>
-          <div class="replica-stack" aria-hidden="true"><span>Replica 1</span><span>Replica 2</span><span>Replica 3</span></div>
+          <p class="diagram-example-label">Example: two-replica HA topology</p>
+          <div class="replica-stack" aria-hidden="true"><span>Replica 1</span><span>Replica 2</span></div>
           <div class="diagram-row"><span class="diagram-row-icon">{% include landing-icon.html name='database' %}</span><span><strong>Kanidm data plane</strong><small>Identity, storage, replication</small></span></div>
           <div class="diagram-disclaimer">Correctness stays with Kanidm</div>
         </div>
