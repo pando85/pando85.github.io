@@ -1335,3 +1335,43 @@
   .landing-page .code-foot { font-size: .74rem; }
   .landing-page .card-more { font-size: .83rem; }
 }
+
+
+/* Small post-launch readability fixes. Scoped to the landing only. */
+.landing-page .code-prerequisite {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin: 0;
+  padding: 12px 19px 15px;
+  border-top: 1px solid #34516a;
+  background: #183249;
+  color: #e1edf9 !important;
+  font-size: .78rem;
+  line-height: 1.65;
+}
+.landing-page .code-prerequisite code {
+  color: #a7f4ed;
+  white-space: nowrap;
+  font-size: inherit;
+}
+.landing-page .code-prerequisite a {
+  color: #b8f1ff;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  font-weight: 700;
+}
+.landing-page .diagram-example-label {
+  font-size: .72rem;
+  line-height: 1.5;
+  font-weight: 700;
+  color: #365773 !important;
+  margin: 3px 0 2px;
+}
+@media (max-width: 540px) {
+  /* Let each example determine its own height, avoiding a 360px empty panel. */
+  .landing-page .code-panels { min-height: 0; }
+  .landing-page .code-prerequisite { font-size: .79rem; }
+  .landing-page .diagram-example-label { font-size: .81rem; }
+}
