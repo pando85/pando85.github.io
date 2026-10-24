@@ -1,0 +1,25 @@
+name: Website validation
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out website
+        uses: actions/checkout@v4
+      - name: Install Ruby and Jekyll dependencies
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.1'
+          bundler-cache: true
+      - name: Build site
+        run: bundle exec jekyll build --trace
+      - name: Check landing links and assets
+        run: python3 scripts/check_landing_links.py _site
