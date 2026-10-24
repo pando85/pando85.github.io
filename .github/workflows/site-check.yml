@@ -40,7 +40,9 @@ jobs:
         run: python3 scripts/check_landing_links.py _site
       - name: Install browser test dependency
         run: python3 -m pip install --user playwright==1.56.0
-      - name: Test desktop, tablet and mobile
+      - name: Install pinned axe-core accessibility engine
+        run: npm install --no-save --package-lock=false --ignore-scripts --no-audit --no-fund axe-core@4.14.0
+      - name: Test responsive layout and WCAG accessibility
         run: |
           python3 -m http.server 8765 --bind 127.0.0.1 --directory _site >/tmp/kaniop-http.log 2>&1 &
           python3 scripts/check_landing_browser.py
