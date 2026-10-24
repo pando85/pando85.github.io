@@ -31,6 +31,48 @@ def verify_page(browser, width, height):
     assert backup.get_by_text("Experimental").is_visible()
     assert "not yet supported for production" in backup.inner_text().lower()
 
+    # The examples must be real, navigable Kubernetes resources, not decorative tabs.
+    tabs = page.get_by_role("tab")
+    assert tabs.count() == 3
+    cluster = page.get_by_role("tabpanel", name="Cluster")
+    person = page.get_by_role("tabpanel", name="Person")
+    oauth2 = page.get_by_role("tabpanel", name="OAuth2 client")
+    assert cluster.is_visible() and not person.is_visible() and not oauth2.is_visible()
+
+    # Capture the top of the page *before* interactions scroll the sticky header.
+    if width in (1440, 390):
+        Path("screenshots").mkdir(exist_ok=True)
+        page.screenshot(path=f"screenshots/landing-{width}.png", full_page=True, animations="disabled")
+
+    tabs.nth(0).focus()
+    page.keyboard.press("ArrowRight")
+    assert tabs.nth(1).get_attribute("aria-selected") == "true"
+    assert person.is_visible() and not cluster.is_visible()
+    assert "KanidmPersonAccount" in person.inner_text()
+    assert page.locator("#hero-code-filename").inner_text() == "person.yaml"
+    assert page.locator(".code-doc-link").get_attribute("href").endswith("/usage/person.html")
+
+    page.keyboard.press("End")
+    assert oauth2.is_visible() and not person.is_visible()
+    assert "KanidmOAuth2Client" in oauth2.inner_text()
+    assert page.locator(".code-doc-link").get_attribute("href").endswith("/usage/oauth2.html")
+    page.keyboard.press("Home")
+    assert cluster.is_visible()
+    assert tabs.nth(0).get_attribute("aria-selected") == "true"
+
+    # The page explains which component owns the identity server.
+    explainer = page.locator(".hero-explainer")
+    assert explainer.is_visible()
+    assert explainer.get_by_role("link", name="Kanidm").get_attribute("href") == "https://kanidm.com"
+
+    if width <= 540:
+        # Reject unreadable < 12px labels that previously shipped in the mobile diagram.
+        for selector in (".diagram-row small", ".diagram-disclaimer", ".diagram-process small"):
+            size = page.locator(selector).first.evaluate(
+                "(el) => parseFloat(getComputedStyle(el).fontSize)"
+            )
+            assert size >= 12, f"{selector} is only {size}px at {width}px"
+
     if width <= 820:
         assert page.locator(".mobile-menu summary").is_visible()
         assert not page.locator(".nav-right").is_visible()
@@ -63,9 +105,6 @@ def verify_page(browser, width, height):
         f"Unexpected horizontal page overflow at {width}px"
     )
     assert not errors, f"JavaScript errors at {width}px: {errors}"
-    if width in (1440, 390):
-        Path("screenshots").mkdir(exist_ok=True)
-        page.screenshot(path=f"screenshots/landing-{width}.png", full_page=True, animations="disabled")
     page.close()
 
 
