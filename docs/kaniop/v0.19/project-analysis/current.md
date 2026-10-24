@@ -1,3 +1,10 @@
+---
+kaniop_repo_ref: v0.19.1
+title: Current Report
+weight: 54000
+indent: true
+---
+
 # Current Project Report
 
 **Updated:** 2026-08-29
