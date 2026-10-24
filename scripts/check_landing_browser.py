@@ -7,6 +7,23 @@ from playwright.sync_api import sync_playwright
 SITE = "http://127.0.0.1:8765/"
 
 
+def assert_accessible(page, state):
+    """Run pinned axe-core WCAG 2.1 AA checks against the rendered page."""
+    violations = page.evaluate("""async () => {
+        const results = await window.axe.run(document, {
+            runOnly: {type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']}
+        });
+        return results.violations.map((v) => ({
+            id: v.id, impact: v.impact, description: v.help,
+            nodes: v.nodes.slice(0, 5).map((n) => ({
+                target: n.target.join(' '),
+                failure: n.failureSummary
+            }))
+        }));
+    }""")
+    assert not violations, f"Accessibility violations ({state}): {violations}"
+
+
 def verify_page(browser, width, height):
     page = browser.new_page(viewport={"width": width, "height": height}, device_scale_factor=1)
     errors = []
@@ -39,6 +56,20 @@ def verify_page(browser, width, height):
     oauth2 = page.get_by_role("tabpanel", name="OAuth2 client")
     assert cluster.is_visible() and not person.is_visible() and not oauth2.is_visible()
 
+    page.add_script_tag(path="node_modules/axe-core/axe.min.js")
+    assert_accessible(page, f"{width}px / Cluster")
+    assert page.locator(".code-prerequisite").is_visible()
+    assert "my-idm-tls" in page.locator(".code-prerequisite").inner_text()
+    assert page.locator(".diagram-example-label").inner_text() == "Example: three-replica topology"
+    if width <= 540:
+        panel_height = page.locator(".code-panels").bounding_box()["height"]
+        assert panel_height < 360, f"Mobile Cluster example has excess empty space: {panel_height}px"
+        pre_height = page.locator("#panel-cluster pre").bounding_box()["height"]
+        prerequisite_height = page.locator(".code-prerequisite").bounding_box()["height"]
+        assert abs(panel_height - pre_height - prerequisite_height) < 5, (
+            f"Mobile code panel should fit the code and note: {panel_height}px"
+        )
+
     # Capture the top of the page *before* interactions scroll the sticky header.
     if width in (1440, 390):
         Path("screenshots").mkdir(exist_ok=True)
@@ -48,12 +79,14 @@ def verify_page(browser, width, height):
     page.keyboard.press("ArrowRight")
     assert tabs.nth(1).get_attribute("aria-selected") == "true"
     assert person.is_visible() and not cluster.is_visible()
+    assert_accessible(page, f"{width}px / Person")
     assert "KanidmPersonAccount" in person.inner_text()
     assert page.locator("#hero-code-filename").inner_text() == "person.yaml"
     assert page.locator(".code-doc-link").get_attribute("href").endswith("/usage/person.html")
 
     page.keyboard.press("End")
     assert oauth2.is_visible() and not person.is_visible()
+    assert_accessible(page, f"{width}px / OAuth2")
     assert "KanidmOAuth2Client" in oauth2.inner_text()
     assert page.locator(".code-doc-link").get_attribute("href").endswith("/usage/oauth2.html")
     page.keyboard.press("Home")
@@ -78,6 +111,7 @@ def verify_page(browser, width, height):
         assert not page.locator(".nav-right").is_visible()
         page.locator(".mobile-menu summary").click()
         assert page.locator(".mobile-menu-list a[href='/#features']").is_visible()
+        assert_accessible(page, f"{width}px / Mobile navigation")
         page.locator(".mobile-menu-list a[href='/#features']").click()
         assert page.url.endswith("/#features")
         assert not page.locator(".mobile-menu").evaluate("(menu) => menu.open"), (
