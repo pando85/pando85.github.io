@@ -145,7 +145,11 @@ def verify_page(browser, width, height):
     if width == 1440:
         page.context.grant_permissions(["clipboard-read", "clipboard-write"])
         page.get_by_role("button", name="Copy Helm installation commands").click()
-        assert page.get_by_role("status").get_by_text("Commands copied to clipboard.").is_visible()
+        # navigator.clipboard.writeText() resolves asynchronously, so the live region
+        # text is not guaranteed at the instant the click finishes.
+        copy_status = page.get_by_role("status").get_by_text("Commands copied to clipboard.")
+        copy_status.wait_for(state="visible", timeout=5000)
+        assert copy_status.is_visible()
         copied = page.evaluate("navigator.clipboard.readText()")
         assert "helm install --create-namespace" in copied
         assert "kubectl get pods -n kaniop" in copied
