@@ -60,7 +60,10 @@ def verify_page(browser, width, height):
     assert_accessible(page, f"{width}px / Cluster")
     assert page.locator(".code-prerequisite").is_visible()
     assert "my-idm-tls" in page.locator(".code-prerequisite").inner_text()
-    assert page.locator(".diagram-example-label").inner_text() == "Example: three-replica topology"
+    assert page.locator(".diagram-example-label").inner_text() == "Example: two-replica HA topology"
+    replicas = page.locator(".replica-stack span")
+    assert replicas.count() == 2, "The HA diagram should show exactly two Kanidm replicas"
+    assert [replicas.nth(i).inner_text() for i in range(2)] == ["Replica 1", "Replica 2"]
     if width <= 540:
         panel_height = page.locator(".code-panels").bounding_box()["height"]
         assert panel_height < 360, f"Mobile Cluster example has excess empty space: {panel_height}px"
