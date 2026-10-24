@@ -1,0 +1,48 @@
+name: Landing page validation
+
+on:
+  pull_request:
+    paths:
+      - 'index.html'
+      - 'css/**'
+      - 'js/**'
+      - 'images/**'
+      - '_includes/**'
+      - '_layouts/**'
+      - 'scripts/**'
+      - '.github/workflows/site-check.yml'
+      - '_data/projects.json'
+  push:
+    branches: [master]
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out website
+        uses: actions/checkout@v4
+      - name: Install Ruby and Jekyll dependencies
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.1'
+          bundler-cache: true
+      - name: Build website
+        run: bundle exec jekyll build --trace
+      - name: Validate rendered links
+        run: python3 scripts/check_landing_links.py _site
+      - name: Install browser test dependency
+        run: python3 -m pip install --user playwright==1.56.0
+      - name: Test desktop, tablet and mobile
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 --directory _site >/tmp/kaniop-http.log 2>&1 &
+          python3 scripts/check_landing_browser.py
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kaniop-landing-screenshots
+          path: screenshots/
+          if-no-files-found: ignore
