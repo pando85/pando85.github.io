@@ -1,7 +1,7 @@
 ---
-kaniop_repo_ref: v0.19.1
+kaniop_repo_ref: v0.19.2
 title: Webhook Validation
-weight: 40000
+weight: 36000
 ---
 
 # Webhook Validation for Kanidm Custom Resources

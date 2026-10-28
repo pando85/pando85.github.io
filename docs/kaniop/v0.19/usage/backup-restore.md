@@ -1,5 +1,5 @@
 ---
-kaniop_repo_ref: v0.19.1
+kaniop_repo_ref: v0.19.2
 title: Backup and Restore (Experimental)
 weight: 30500
 indent: true
@@ -74,6 +74,23 @@ Kaniop supports remote backup repositories for disaster recovery. This uses thre
 - **KanidmBackupRepository**: Defines an S3-compatible destination with authentication, encryption, and transport limits.
 - **KanidmBackupSchedule**: The single source of the Kanidm online backup cron, local retention, and remote retention policy. Only one Schedule may target a given Kanidm at a time.
 - **KanidmBackup**: Immutable catalog metadata for a committed remote backup. These are discovered automatically from remote manifests.
+
+### Custom CA bundles
+
+If your S3-compatible endpoint uses a private CA, provide a ConfigMap in the same namespace as the `KanidmBackupRepository`. The `caBundleRef` field selects both the ConfigMap and the PEM bundle key, so it works with trust-manager and other certificate distributors without copying certificates:
+
+```yaml
+spec:
+  s3:
+    # Other S3 configuration omitted.
+    caBundleRef:
+      name: homelab-ca
+      key: ca.crt
+```
+
+The `name` and `key` fields are required when `caBundleRef` is set. Kaniop projects the selected key into the data mover's dedicated CA-bundle mount. Omitting `caBundleRef` uses the container's default TLS trust configuration.
+
+**Breaking change in the experimental API:** previous configurations used `caBundleRef: <configmap-name>`. Update them to `caBundleRef: {name: <configmap-name>, key: ca-bundle.pem}` (or the actual key) before upgrading the operator and CRDs. An existing object with the old string shape must be migrated; it cannot be decoded by the new typed controller.
 
 ### Online Backup Transport: Experimental Status
 

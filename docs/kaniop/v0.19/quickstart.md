@@ -1,5 +1,5 @@
 ---
-kaniop_repo_ref: v0.19.1
+kaniop_repo_ref: v0.19.2
 title: Quickstart
 weight: 12000
 indent: true
@@ -143,7 +143,7 @@ To access the Kanidm web interface:
 2. Open https://localhost:8443 in your browser
 
 Alternatively, you can expose the Kanidm UI through an Ingress for persistent access.
-See the [Ingress example](https://github.com/pando85/kaniop/blob/v0.19.1/examples/kanidm-ingress.yaml)
+See the [Ingress example](https://github.com/pando85/kaniop/blob/v0.19.2/examples/kanidm-ingress.yaml)
 for configuration details.
 
 ### Person Account Credentials
@@ -189,9 +189,9 @@ kubectl get kanidmserviceaccounts
 
 The `examples/` directory contains additional configurations:
 
-- [`examples/kanidm-ingress.yaml`](https://github.com/pando85/kaniop/blob/v0.19.1/examples/kanidm-ingress.yaml) -
+- [`examples/kanidm-ingress.yaml`](https://github.com/pando85/kaniop/blob/v0.19.2/examples/kanidm-ingress.yaml) -
   Kanidm with Ingress configuration
-- [`examples/kanidm-replication.yaml`](https://github.com/pando85/kaniop/blob/v0.19.1/examples/kanidm-replication.yaml) -
+- [`examples/kanidm-replication.yaml`](https://github.com/pando85/kaniop/blob/v0.19.2/examples/kanidm-replication.yaml) -
   Multi-replica setup with storage
 
 ### What's Next?

@@ -1,5 +1,5 @@
 ---
-kaniop_repo_ref: v0.19.1
+kaniop_repo_ref: v0.19.2
 title: Troubleshooting
 weight: 50000
 ---

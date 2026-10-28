@@ -1,8 +1,10 @@
 ---
-kaniop_repo_ref: v0.19.1
+kaniop_repo_ref: v0.19.2
 title: Installation
 weight: 20000
 ---
+
+# Installation
 
 This guide covers installing Kaniop in your Kubernetes cluster using various methods.
 

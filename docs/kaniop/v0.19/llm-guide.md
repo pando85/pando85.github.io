@@ -1,7 +1,7 @@
 ---
-kaniop_repo_ref: v0.19.1
+kaniop_repo_ref: v0.19.2
 title: LLM Operations Guide
-weight: 90
+weight: 58000
 ---
 
 # LLM Operations Guide
