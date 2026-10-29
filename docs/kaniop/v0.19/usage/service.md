@@ -1,5 +1,5 @@
 ---
-kaniop_repo_ref: v0.19.2
+kaniop_repo_ref: v0.19.3
 title: Managing Service Accounts
 weight: 33000
 indent: true
@@ -13,7 +13,7 @@ Custom Resource. This enables declarative service account management with full G
 ## Basic Service Account
 
 Here's a simple service account configuration. You can reference the complete example at
-[`examples/service-account.yaml`](https://github.com/pando85/kaniop/blob/v0.19.2/examples/service-account.yaml):
+[`examples/service-account.yaml`](https://github.com/pando85/kaniop/blob/v0.19.3/examples/service-account.yaml):
 
 ```yaml
 # Basic configuration - see examples/service-account.yaml for all options

@@ -1,5 +1,5 @@
 ---
-kaniop_repo_ref: v0.19.2
+kaniop_repo_ref: v0.19.3
 title: OAuth2 Client Management
 weight: 31000
 indent: true
@@ -13,7 +13,7 @@ Custom Resource. This enables secure application integration with your identity 
 ## Basic OAuth2 Client
 
 Here's a simple OAuth2 client configuration. You can reference the complete example at
-[`examples/oauth2.yaml`](https://github.com/pando85/kaniop/blob/v0.19.2/examples/oauth2.yaml):
+[`examples/oauth2.yaml`](https://github.com/pando85/kaniop/blob/v0.19.3/examples/oauth2.yaml):
 
 ```yaml
 # Basic configuration - see examples/oauth2.yaml for all options

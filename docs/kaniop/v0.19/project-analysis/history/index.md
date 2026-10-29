@@ -1,5 +1,5 @@
 ---
-kaniop_repo_ref: v0.19.2
+kaniop_repo_ref: v0.19.3
 title: Historical Snapshots
 weight: 55000
 indent: true

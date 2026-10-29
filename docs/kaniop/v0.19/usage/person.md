@@ -1,5 +1,5 @@
 ---
-kaniop_repo_ref: v0.19.2
+kaniop_repo_ref: v0.19.3
 title: Managing Persons
 weight: 32000
 indent: true
@@ -13,7 +13,7 @@ Custom Resource. This enables declarative user management with full Git-based wo
 ## Basic Person Account
 
 Here's a simple person account configuration. You can reference the complete example at
-[`examples/person.yaml`](https://github.com/pando85/kaniop/blob/v0.19.2/examples/person.yaml):
+[`examples/person.yaml`](https://github.com/pando85/kaniop/blob/v0.19.3/examples/person.yaml):
 
 ```yaml
 # Basic configuration - see examples/person.yaml for all options
@@ -89,7 +89,7 @@ spec:
 ## POSIX Account Configuration
 
 For systems requiring POSIX compatibility (SSH, file systems), see the POSIX section in
-[`examples/person.yaml`](https://github.com/pando85/kaniop/blob/v0.19.2/examples/person.yaml):
+[`examples/person.yaml`](https://github.com/pando85/kaniop/blob/v0.19.3/examples/person.yaml):
 
 ```yaml
 # POSIX configuration from examples/person.yaml
