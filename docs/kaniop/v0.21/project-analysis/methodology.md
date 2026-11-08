@@ -1,5 +1,5 @@
 ---
-kaniop_repo_ref: v0.21.0
+kaniop_repo_ref: v0.21.1
 title: Methodology
 weight: 53000
 indent: true

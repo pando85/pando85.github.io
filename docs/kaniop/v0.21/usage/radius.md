@@ -1,5 +1,5 @@
 ---
-kaniop_repo_ref: v0.21.0
+kaniop_repo_ref: v0.21.1
 title: RADIUS Servers
 weight: 34000
 indent: true
@@ -55,7 +55,7 @@ RADIUS passwords (those stay in Kanidm, see [Users and RADIUS passwords](#users-
 ## Example
 
 The generated reference, with every option documented, is
-[`examples/radius-server.yaml`](https://github.com/pando85/kaniop/blob/v0.21.0/examples/radius-server.yaml).
+[`examples/radius-server.yaml`](https://github.com/pando85/kaniop/blob/v0.21.1/examples/radius-server.yaml).
 A complete working set, in the `network` namespace:
 
 ```yaml

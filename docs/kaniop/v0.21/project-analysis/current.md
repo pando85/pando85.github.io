@@ -1,5 +1,5 @@
 ---
-kaniop_repo_ref: v0.21.0
+kaniop_repo_ref: v0.21.1
 title: Current Report
 weight: 54000
 indent: true
