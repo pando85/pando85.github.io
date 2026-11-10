@@ -1,0 +1,80 @@
+---
+kaniop_repo_ref: v0.22.0
+title: OAuth2 Client Management
+weight: 31000
+indent: true
+---
+
+# OAuth2 Client Management
+
+Kaniop manages OAuth2 client registrations in your Kanidm cluster using the `KanidmOAuth2Client`
+Custom Resource. This enables secure application integration with your identity provider.
+
+## Basic OAuth2 Client
+
+Here's a simple OAuth2 client configuration. You can reference the complete example at
+[`examples/oauth2.yaml`](https://github.com/pando85/kaniop/blob/v0.22.0/examples/oauth2.yaml):
+
+```yaml
+# Basic configuration - see examples/oauth2.yaml for all options
+apiVersion: kaniop.rs/v1beta1
+kind: KanidmOAuth2Client
+metadata:
+  name: my-webapp
+  namespace: default
+spec:
+  kanidmRef:
+    name: my-idm
+  displayname: My Web Application
+  description: Application used for single sign-on
+  origin: https://myapp.example.com
+  redirectUrl:
+    - https://myapp.example.com/oauth2/callback
+```
+
+This will create an Oauth2 client secret named `my-webapp-kanidm-oauth2-credentials` in the same
+namespace as the OAuth2 client.
+
+The optional `spec.description` is managed independently of the display name. Omitting it
+leaves the Kanidm description unmanaged; setting `""` clears it.
+
+## Refresh token lifetime
+
+Kanidm refresh tokens expire after **16 hours** by default. For clients that stay idle for
+longer periods, such as desktop sync applications, set `spec.refreshTokenExpiry` to a
+positive number of seconds:
+
+```yaml
+spec:
+  refreshTokenExpiry: 7776000 # 90 days
+```
+
+When configured, Kaniop reconciles this lifetime and restores it if changed directly in
+Kanidm. If omitted, Kaniop **does not manage** the attribute: existing values are left
+untouched, and new clients use Kanidm's default. Removing the field later also leaves its
+last value in Kanidm; it does **not** reset it to the default. You can reset it using the
+Kanidm CLI if needed.
+
+Longer refresh-token lifetimes increase exposure if a token is stolen. The OAuth2 session
+remains subject to other Kanidm session and account policies.
+
+## Application image
+
+`spec.image.url` points at an image (png, jpg, gif, svg or webp, up to 256 KB) that Kaniop
+downloads and sets in Kanidm for the application portal.
+
+Kaniop revalidates the URL on every reconciliation — once per `--idm-reconcile-interval-seconds`
+(60 seconds by default). It first asks the URL whether the file changed with a `HEAD` request and
+skips the download when a comparable `ETag` or `Last-Modified` confirms it has not
+changed. If the server rejects `HEAD` or provides no comparable freshness validator, Kaniop
+downloads the image and compares its content hash; `Content-Length` alone cannot prove that
+the bytes are unchanged. The image is pushed to Kanidm only when the bytes differ from
+the ones already applied. Replacing the file at
+that URL therefore updates the portal icon without editing the `KanidmOAuth2Client`. A URL that
+stops serving the image is reported as a Warning event naming the failed request (`ImageFetchError`
+or `ImageDownloadError`), and the last successfully applied image stays in place until a download
+succeeds.
+
+Removing `spec.image` deletes the image from Kanidm and clears `.status.image`, so no stale icon
+is left behind. While that removal is pending the `ImageUpdated` condition reports
+`False`/`ImageNeedsRemoval`; it returns to `True` once both Kanidm and the status are cleared.
