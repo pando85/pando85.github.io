@@ -1,0 +1,103 @@
+---
+kaniop_repo_ref: v0.25.2
+title: OAuth2 Client Management
+weight: 31000
+indent: true
+---
+
+# OAuth2 Client Management
+
+Kaniop manages OAuth2 client registrations in your Kanidm cluster using the `KanidmOAuth2Client`
+Custom Resource. This enables secure application integration with your identity provider.
+
+## Basic OAuth2 Client
+
+Here's a simple OAuth2 client configuration. You can reference the complete example at
+[`examples/oauth2.yaml`](https://github.com/pando85/kaniop/blob/v0.25.2/examples/oauth2.yaml):
+
+```yaml
+# Basic configuration - see examples/oauth2.yaml for all options
+apiVersion: kaniop.rs/v1beta1
+kind: KanidmOAuth2Client
+metadata:
+  name: my-webapp
+  namespace: default
+spec:
+  kanidmRef:
+    name: my-idm
+  displayname: My Web Application
+  description: Application used for single sign-on
+  origin: https://myapp.example.com
+  redirectUrl:
+    - https://myapp.example.com/oauth2/callback
+```
+
+This will create an Oauth2 client secret named `my-webapp-kanidm-oauth2-credentials` in the same
+namespace as the OAuth2 client.
+
+The optional `spec.description` is managed independently of the display name. Omitting it
+leaves the Kanidm description unmanaged; setting `""` clears it.
+
+## Replicated credential provisioning and rotation
+
+Kaniop directs identity writes to a deterministic local management replica and checks the
+other configured local replicas before creating a missing identity. For confidential OAuth2
+clients, the Kubernetes Secret is published or repaired only when the local replicas agree
+on the entry UUID and credential. An unavailable or lagging local replica leaves credential
+verification pending; it does not cause a second create or a blind credential repair.
+External replication peers do not expose management HTTPS addresses in the CR and are not
+covered by this local agreement check.
+
+Forced and scheduled rotations record a pending intent before issuing the non-idempotent
+Kanidm reset. If the reset response is lost, the operator waits until it can observe a
+changed credential and local replica agreement, then publishes it without issuing another
+reset. A failed Secret publication is retried using the same operation timestamp.
+The annotation `kaniop.rs/secret-rotation-pending` contains an operation timestamp and a
+SHA-256 fingerprint of the previous generated credential, never the credential itself.
+
+If a rotation remains pending and the old credential is still authoritative, the reset
+may not have executed (for example, the operator stopped after recording the intent).
+An administrator must first quiesce identity writes and confirm that no previous reset
+can still commit before clearing the pending annotation to allow a fresh attempt.
+Never clear the annotation solely because a replica is temporarily unavailable.
+
+## Refresh token lifetime
+
+Kanidm refresh tokens expire after **16 hours** by default. For clients that stay idle for
+longer periods, such as desktop sync applications, set `spec.refreshTokenExpiry` to a
+positive number of seconds:
+
+```yaml
+spec:
+  refreshTokenExpiry: 7776000 # 90 days
+```
+
+When configured, Kaniop reconciles this lifetime and restores it if changed directly in
+Kanidm. If omitted, Kaniop **does not manage** the attribute: existing values are left
+untouched, and new clients use Kanidm's default. Removing the field later also leaves its
+last value in Kanidm; it does **not** reset it to the default. You can reset it using the
+Kanidm CLI if needed.
+
+Longer refresh-token lifetimes increase exposure if a token is stolen. The OAuth2 session
+remains subject to other Kanidm session and account policies.
+
+## Application image
+
+`spec.image.url` points at an image (png, jpg, gif, svg or webp, up to 256 KB) that Kaniop
+downloads and sets in Kanidm for the application portal.
+
+Kaniop revalidates the URL on every reconciliation — once per `--idm-reconcile-interval-seconds`
+(60 seconds by default). It first asks the URL whether the file changed with a `HEAD` request and
+skips the download when a comparable `ETag` or `Last-Modified` confirms it has not
+changed. If the server rejects `HEAD` or provides no comparable freshness validator, Kaniop
+downloads the image and compares its content hash; `Content-Length` alone cannot prove that
+the bytes are unchanged. The image is pushed to Kanidm only when the bytes differ from
+the ones already applied. Replacing the file at
+that URL therefore updates the portal icon without editing the `KanidmOAuth2Client`. A URL that
+stops serving the image is reported as a Warning event naming the failed request (`ImageFetchError`
+or `ImageDownloadError`), and the last successfully applied image stays in place until a download
+succeeds.
+
+Removing `spec.image` deletes the image from Kanidm and clears `.status.image`, so no stale icon
+is left behind. While that removal is pending the `ImageUpdated` condition reports
+`False`/`ImageNeedsRemoval`; it returns to `True` once both Kanidm and the status are cleared.
